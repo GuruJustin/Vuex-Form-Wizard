@@ -1,29 +1,40 @@
-# Vuex [![Build Status](https://circleci.com/gh/vuejs/vuex/tree/dev.png?style=shield)](https://circleci.com/gh/vuejs/vuex)
+# vue-step-wizard
 
-> Centralized State Management for Vue.js.
+![alt text](https://github.com/tushargugnani/vue-step-wizard/blob/master/public/Vue-Step-Wizard.gif?raw=true)
 
-<p align="center">
-  <img width="700px" src="https://raw.githubusercontent.com/vuejs/vuex/dev/docs/.vuepress/public/vuex.png">
-</p>
 
-- [What is Vuex?](https://vuex.vuejs.org/)
-- [Full Documentation](http://vuex.vuejs.org/)
+## Documentation
 
-## Examples
+https://tushargugnani.github.io/vue-step-wizard/#/
 
-- [Counter](https://github.com/vuejs/vuex/tree/dev/examples/counter)
-- [Counter with Hot Reload](https://github.com/vuejs/vuex/tree/dev/examples/counter-hot)
-- [TodoMVC](https://github.com/vuejs/vuex/tree/dev/examples/todomvc)
-- [Flux Chat](https://github.com/vuejs/vuex/tree/dev/examples/chat)
-- [Shopping Cart](https://github.com/vuejs/vuex/tree/dev/examples/shopping-cart)
 
-Running the examples:
-
-``` bash
-$ npm install
-$ npm run dev # serve examples at localhost:8080
+## Installing Plugin
+```
+npm install --save vue-step-wizard
 ```
 
-## License
 
-[MIT](http://opensource.org/licenses/MIT)
+### Import Globally
+```
+import VueStepWizard from 'vue-step-wizard'
+import 'vue-step-wizard/dist/vue-step-wizard.css'
+Vue.use(VueStepWizard);
+```
+
+### Import and use Components Locally
+```
+//local registration
+import {FormWizard, TabContent} from 'vue-step-wizard'
+import 'vue-step-wizard/dist/vue-step-wizard.css'
+//component code
+components: {
+  FormWizard,
+  TabContent
+}
+```
+
+### Buy my a Pizza
+
+You have an option to buy me a pizza if you found this plugin useful
+
+https://www.buymeacoffee.com/wLrF3Z0tE

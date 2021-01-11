@@ -1,63 +1,246 @@
-# What is Vuex?
+# vue-step-wizard
 
-Vuex is a **state management pattern + library** for Vue.js applications. It serves as a centralized store for all the components in an application, with rules ensuring that the state can only be mutated in a predictable fashion. It also integrates with Vue's official [devtools extension](https://github.com/vuejs/vue-devtools) to provide advanced features such as zero-config time-travel debugging and state snapshot export / import.
+## Installing
 
-### What is a "State Management Pattern"?
-
-Let's start with a simple Vue counter app:
-
-``` js
-new Vue({
-  // state
-  data () {
-    return {
-      count: 0
-    }
-  },
-  // view
-  template: `
-    <div>{{ count }}</div>
-  `,
-  // actions
-  methods: {
-    increment () {
-      this.count++
-    }
-  }
-})
+### NPM
+```
+npm install --save vue-step-wizard
 ```
 
-It is a self-contained app with the following parts:
+### Direct script Include
+```
+<link rel="stylesheet" href="https://unpkg.com/vue-step-wizard/dist/vue-step-wizard.css">
+<script src="https://unpkg.com/vue-step-wizard/dist/vue-step-wizard.js"></script>
+```
 
-- The **state**, which is the source of truth that drives our app;
-- The **view**, which is just a declarative mapping of the **state**;
-- The **actions**, which are the possible ways the state could change in reaction to user inputs from the **view**.
+## Component Registration
 
-This is an extremely simple representation of the concept of "one-way data flow":
+### Global
+```javascript
+//global registration
+import VueStepWizard from 'vue-step-wizard'
+import 'vue-step-wizard/dist/vue-step-wizard.css'
+Vue.use(VueStepWizard);
+```
 
-<p style="text-align: center; margin: 2em">
-  <img style="width:100%;max-width:450px;" src="/flow.png">
-</p>
+### Local 
+```javascript
+//local registration
+import {FormWizard, TabContent} from 'vue-step-wizard'
+import 'vue-step-wizard/dist/vue-step-wizard.css'
+//component code
+components: {
+  FormWizard,
+  TabContent
+}
+```
 
-However, the simplicity quickly breaks down when we have **multiple components that share common state**:
 
-- Multiple views may depend on the same piece of state.
-- Actions from different views may need to mutate the same piece of state.
+## Usage
 
-For problem one, passing props can be tedious for deeply nested components, and simply doesn't work for sibling components. For problem two, we often find ourselves resorting to solutions such as reaching for direct parent/child instance references or trying to mutate and synchronize multiple copies of the state via events. Both of these patterns are brittle and quickly lead to unmaintainable code.
+### Basic Stepper Template
 
-So why don't we extract the shared state out of the components, and manage it in a global singleton? With this, our component tree becomes a big "view", and any component can access the state or trigger actions, no matter where they are in the tree!
+```
+    <form-wizard>
+        <tab-content title="About You" :selected="true">
+            This is content of Tab 1
+        </tab-content>
+        <tab-content title="About your Company"> 
+            <p>Can contains</p>
+            <p>Multiple Elements</p>
+        </tab-content>
+        <tab-content title="Finishing Up">
+            <p>Or an image .. or any thing</p>
+            <img src="../assets/dog.png" alt="Simple" />
+        </tab-content>  
+    </form-wizard>
+```
 
-In addition, by defining and separating the concepts involved in state management and enforcing certain rules, we also give our code more structure and maintainability.
+#### *Basic Stepper Demo*
 
-This is the basic idea behind Vuex, inspired by [Flux](https://facebook.github.io/flux/docs/overview.html), [Redux](http://redux.js.org/) and [The Elm Architecture](https://guide.elm-lang.org/architecture/). Unlike the other patterns, Vuex is also a library implementation tailored specifically for Vue.js to take advantage of its granular reactivity system for efficient updates.
+<iframe
+     src="https://codesandbox.io/embed/vue-step-wizard-basic-stepper-zc3mq?fontsize=14&hidenavigation=1&theme=dark&view=preview"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue step wizard (Basic Stepper)"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts allow-autoplay"
+></iframe>
 
-![vuex](/vuex.png)
+### Form Stepper
 
-### When Should I Use It?
+It's same as building a stepper, you just need to decide which form fields goes into which tab-content component and bind it with you vue model attribute.
 
-Although Vuex helps us deal with shared state management, it also comes with the cost of more concepts and boilerplate. It's a trade-off between short term and long term productivity.
+```javascript
+<template>
+    <form-wizard>
+        <tab-content title="About You" :selected="true">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" class="form-control" placeholder="Enter your name" v-model="fullName">
+            </div>
+        </tab-content>
+        <tab-content title="About your Company"> 
+            <div class="form-group">
+                <label for="companyName">Your Company Name</label>
+                <input type="text" class="form-control" placeholder="Enter your Company / Organization name" v-model="companyName">
+            </div>
+        </tab-content>
+        <tab-content title="Finishing Up">
+            <div class="form-group">
+                <label for="referral">From Where did you hear about us</label>
+                <select class="form-control" v-model="referral">
+                    <option>Newspaper</option>
+                    <option>Online Ad</option>
+                    <option>Friend</option>
+                    <option>Other</option>
+                </select>
+            </div>
+        </tab-content>
+    </form-wizard>
+</template>
 
-If you've never built a large-scale SPA and jump right into Vuex, it may feel verbose and daunting. That's perfectly normal - if your app is simple, you will most likely be fine without Vuex. A simple [global event bus](https://vuejs.org/v2/guide/components.html#Non-Parent-Child-Communication) may be all you need. But if you are building a medium-to-large-scale SPA, chances are you have run into situations that make you think about how to better handle state outside of your Vue components, and Vuex will be the natural next step for you. There's a good quote from Dan Abramov, the author of Redux:
+<script>
+import {FormWizard, TabContent} from 'vue-step-wizard'
+import "vue-step-wizard/dist/vue-step-wizard.css";
 
-> Flux libraries are like glasses: you’ll know when you need them.
+
+export default {
+    name: 'BasicStepperForm',
+    components: {
+        FormWizard, TabContent
+    },
+    data(){
+        return {
+            fullName: '',
+            companyName: '',
+            referral: '',
+        }
+    },
+}
+</script>
+```
+
+#### *Form Stepper Demo*
+
+<iframe
+     src="https://codesandbox.io/embed/interesting-elion-ohnet?fontsize=14&hidenavigation=1&theme=dark&view=preview"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="interesting-elion-ohnet"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts allow-autoplay"></iframe>
+
+## Validation Support
+
+### Multi Step Form with Validation
+
+Vue Step Wizard uses [Vuelidate](https://vuelidate.js.org/) plugin under the hood to perform form validations. 
+Building a multistep form with validation is a breeze you just need to make sure the data propety matches a couple of syntax and along with that you need to include a mixin named ValidationHelper.
+
+Here is what needs to be done.
+
+#### Include Mixin
+
+To get the validation support, you should include the mixin name ValidationHelper in your component. (If you are doing local component registration this File needs to be imported seperately along with FormWizard and TabContent)
+
+```javascript
+    mixins: [ValidationHelper],
+
+    //Local Registration
+    import ValidationHelper from '../components/ValidationHelper.vue';
+    ....
+    mixins: [ValidationHelper]
+```
+
+#### Form Data 
+* All the form fields (from all the steps), needs to be defined inside a dedicated object named formData
+
+```javascript
+    formData:{
+        fullName: '',
+        email: null,
+        companyName: null,
+        numberOfEmployees: null,
+        referral: null,
+        terms: false,
+    },
+```
+
+
+#### Validation Rules
+
+For defining the validation rules, you should import the vuelidate validation rule which you are looking to use.
+
+All the validation rules must go under a array named validationRules. Validation of each step must go inside it's own object.
+
+```javascript
+    import { required } from 'vuelidate/lib/validators';
+    import { email } from 'vuelidate/lib/validators';
+    import { numeric } from 'vuelidate/lib/validators';
+    ...
+    ...
+    ...
+    validationRules:[
+        {fullName: {required}, email: {required, email} },  //Validation Rules for step 1
+        {companyName: {required}, numberOfEmployees: {required, numeric} },   //Validation for step 2
+        {referral: {required}, terms: {required, numeric} }   //Validation for step 3
+    ]
+```
+
+For the available built in validators , refer [Vuelidate Builtin Validators](https://vuelidate.js.org/#sub-builtin-validators)
+
+#### Check and Display Error
+
+
+You can utilize a special method named hasError('fieldName') to check if the field has an error associated with it. 
+
+You can use this to apply error classes on the input field, and also to display the error message. 
+
+```HTML
+    <!--Single Error Message-->
+    <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" class="form-control" :class="hasError('fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.fullName">
+        <div v-if="hasError('fullName')" class="invalid-feedback">
+            <div class="error" v-if="!$v.formData.fullName.required">Please provide a valid name.</div>
+        </div>
+    </div>
+
+    <!--Multiple Error Message-->
+    <div class="form-group">
+        <label for="email">Your Email</label>
+        <input type="email" class="form-control" :class="hasError('email') ? 'is-invalid' : ''" placeholder="Enter your email" v-model="formData.email">
+        <div v-if="hasError('email')" class="invalid-feedback">
+            <div class="error" v-if="!$v.formData.email.required">Email field is required</div>
+            <div class="error" v-if="!$v.formData.email.email">Should be in email format</div>
+        </div>
+    </div>
+```
+
+#### *Multi-Step Form with Validation Demo*
+
+<iframe
+     src="https://codesandbox.io/embed/vue-step-wizard-form-with-validation-ghz85?fontsize=14&hidenavigation=1&theme=dark&view=preview"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue-step-wizard (Form with Validation)"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts allow-autoplay"
+   ></iframe>
+
+
+## Events
+
+### Form Submit
+
+You can utilize the `onComplete` event on form-wizard component to execute the custom code on form submission.
+
+
+```HTML
+    <form-wizard @onComplete="submit">
+```
+
+
+### Next and Previous Step
+
+```HTML
+    <form-wizard @onNextStep="nextStep" @onPreviousStep="previousStep">
+```
