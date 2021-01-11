@@ -1,6 +1,6 @@
 <template>
     <form-wizard ref="formwizard" @onComplete="onComplete" @onNextStep="nextStep" @onPreviousStep="previousStep" @onReset="reset">
-        <tab-content title="About You" :selected="true">
+        <tab-content title="YOUR REQUIREMENTS" :selected="true">
             <div class="form-group">
                 <label for="fullName">Full Name</label>
                 <input type="text" class="form-control" :class="hasError('fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.fullName">
@@ -17,7 +17,7 @@
                 </div>
             </div>
         </tab-content>
-        <tab-content title="About your Company"> 
+        <tab-content title="ABOUT YOU"> 
             <div class="form-group">
                 <label for="companyName">Your Company Name</label>
                 <input type="text" class="form-control" :class="hasError('companyName') ? 'is-invalid' : ''" placeholder="Enter your Company / Organization name" v-model="formData.companyName">
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </tab-content>
-        <tab-content title="Finishing Up">
+        <tab-content title="ADDITIONAL INFORMATION">
             <div class="form-group">
                 <label for="referral">From Where did you hear about us</label>
                 <select :class="hasError('referral') ? 'is-invalid' : ''" class="form-control" v-model="formData.referral">
