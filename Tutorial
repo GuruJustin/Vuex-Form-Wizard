@@ -1,0 +1,193 @@
+<template>
+    <section>
+        <div>
+            <div class="modal fade" :class="{ in: open, visible: open }" v-show="open">
+                <section class="modal-dialog">
+                    <div class="modal-content">
+                        <section class="modal-header">
+                            <h3 class="text-uppercase text-center">
+                                Create Team
+                                <button @click.prevent="closeModal" type="button" class="close btn btn-default" data-dismiss="modal">&times;</button>
+                            </h3>
+                        </section>
+
+                        <section class="modal-body">
+                            <form @submit.prevent="saveTeam" action="">
+                                <section class="modal-body">
+                                
+                                    <div class="form-group">
+                                        <label for="">Name</label>
+                                        <input autofocus @keydown="updateAlias" v-validate data-vv-rules="required" v-focus v-model="team.name" class="form-control" type="text" name="team_name">
+                                        <p class="text-danger" v-if="errors.has('team_name')">{{ errors.first('team_name') }}</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="">Alias</label>
+                                        <input placeholder="Just fill the above field ..." v-validate data-vv-rules="required" v-focus v-model="team.alias" class="form-control" type="text" name="team_alias">
+                                        <p class="text-danger" v-if="errors.has('team_alias')">{{ errors.first('team_alias') }}</p>
+                                    </div>
+
+                                    <div v-if="!team.artwork">
+                                        <h3 class="text-center">Select Team Artwork</h3>
+
+                                        <div class="form-group text-center">
+                                            <label class="btn btn-info btn-file">
+                                                <i class="fa fa-upload"></i> &nbsp; Choose Team Artwork...
+                                                <input type="file" class="hidden" @change="onFileChange">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center" v-else>
+                                        <img :src="team.artwork" style="width: 100px;" class="u-mb-md img-thumbnail" />
+                                        <section class="clearfix">
+                                            <button class="btn btn-danger" @click="removeImage"><i class="fa fa-trash"></i> Remove Team Artwork</button>
+                                        </section>
+
+                                    </div>
+
+                                </section>
+
+                                <section class="modal-footer">
+                                    <button @click.prevent="closeModal" class="btn btn-default pull-left">&larr; Cancel and go back</button>
+                                    <button type="submit" class="btn btn-primary">Create team and continue &rarr;</button>
+                                </section>
+                            </form>
+                        </section>
+
+                    </div>
+                </section>
+            </div>
+            <div class="modal-backdrop" v-show="open"></div>
+        </div>
+
+    </section>
+</template>
+
+<script>
+    import Vue from 'vue';
+
+    import { mapGetters } from 'vuex';
+    import { mapActions } from 'vuex';
+
+    export default {
+        directives: { focus },
+
+        data: () => {
+            return {
+                team: {
+                    'id': 0,
+                    'alias': '',
+                    'artwork': null,
+                }
+            }
+        },
+
+        props: {
+            open: {
+                type: Boolean,
+                default() {
+                    return true;
+                },
+            },
+        },
+
+        computed: {
+            ...mapGetters([
+                'getTeamModalStatus'
+            ]),
+        },
+
+        methods: {
+            ...mapActions ([
+                'setLoader',
+                'setTeamCreateModalStatus',
+                'persistTeam',
+                'addTeamToStore',
+            ]),
+
+            updateAlias (e) {
+                this.team.alias = e.target.value;
+            },
+
+            onFileChange (e) {
+                var files = e.target.files || e.dataTransfer.files;
+
+                if (!files.length) return;
+
+                this.createImage(files[0]);
+            },
+
+            createImage (file) {
+                var image = new Image(),
+                    fileReader = new FileReader(),
+                    self = this;
+
+                fileReader.onload = (e) => {
+                    self.team.artwork = e.target.result;
+                }
+
+                fileReader.readAsDataURL(file);
+            },
+
+
+            removeImage () {
+                this.team.artwork = '';
+            },
+
+            closeModal () {
+                this.setLoader(false);
+                this.setTeamCreateModalStatus(false);
+            },
+
+            clearTeam () {
+                this.team = {
+                    'id': 0,
+                    'alias': '',
+                    'artwork': null,
+                };
+            },
+
+            saveTeam () {
+                var self = this;
+
+                this.$validator.validateAll().then(result => {
+                    if (result) {
+                        self.setLoader(true);
+
+                        this.persistTeam({
+                            callback: (payload) => {
+                                this.addTeamToStore(payload);
+
+                                this.clearTeam();
+
+                                this.$emit('teamSaved', payload.data.id);
+
+                                this.closeModal();
+                            },
+
+                            data: this.team
+                        });
+
+                        return;
+                    }
+
+                    alert('Please fix the errors on this form');
+                });
+
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .modal-backdrop
+    {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    .visible
+    {
+        display: block;
+    }
+</style>
