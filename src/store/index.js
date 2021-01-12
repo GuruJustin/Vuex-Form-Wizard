@@ -6,14 +6,28 @@ const store = new Vuex.Store({
   state: {
     count: 0,
     currentStep : 0,
-    wizardForm: {},
+    wizardForm: {
+      job : null,
+      companyName : null,
+      interested: null,
+      benefit : null,
+      firstName: null, 
+      lastName: null, 
+      emailAddress: null, 
+      phoneNumber: null,
+      preferLang: null,
+    },
+    isNextable : false
   },
   getters : {
-    getCount : state => {
-        return state.count;
+    getIsNextable : state => {
+        return state.isNextable;
     },
     getCurrentStep : state => {
       return state.currentStep
+    },
+    getWizardForm : state => {
+      return state.wizardForm
     }
   },
   mutations: {
@@ -21,17 +35,23 @@ const store = new Vuex.Store({
     setWizardStep(state, payload) {
       state.currentStep = payload.stepNumber ? payload.stepNumber : state.currentStep + 1;
     },
-    increment (state, payload){
-        state.count += payload.amount
-    }
+    setWizardForm(state, payload) {
+      state.wizardForm = Object.assigned(payload.formData);
+    },
+    setIsNextable (state, payload){
+        state.isNextable = payload.nextable
+    },
   },
   actions: {
     //actions of setting current Step
     setWizardStep(context, payload) {
-      context.commit("wizardNextStep", payload)
+      context.commit("setWizardStep", payload)
     },
     increment (context, payload) {
-      context.commit('increment', payload)
+      context.commit('setWizardForm', payload)
+    },
+    setIsNextable (context, payload) {
+      context.commit('setIsNextable', payload)
     }
   }
 })

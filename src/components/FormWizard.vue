@@ -6,7 +6,6 @@
             <div class="break"></div>
           </div>
 
-
           <ul class="step-pills">
               <li @click.prevent.stop="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
                   <a class="step-link" href="#">
@@ -23,21 +22,26 @@
           </form>
   
           <div class="step-footer">
+
             <template v-if="!submitSuccess">
-              <button @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
-              <button @click="nextTab" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next">Next</button>
+              <button v-if="currentTab!=0" @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
+              <button style="visibility:hidden">aa</button>
+              <!-- <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button> -->
               <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Send</button>
             </template>
 
             <template v-else>
               <button @click="reset" class="step-button step-button-reset">Reset</button>
             </template>
+
           </div>
         </div>
     </div>
 </template>
 <script>
 import { store } from "./store.js";
+import { mapGetters, mapActions} from 'vuex'
+
 export default {
     name: 'form-wizard',
     data(){
@@ -47,8 +51,12 @@ export default {
             totalTabs : 0,
             storeState: store.state,
             submitSuccess : false,
-            isValidationSupport: false
         }
+    },
+    computed:{
+        ...mapGetters({
+            nextable : 'getIsNextable'
+        }),
     },
     mounted(){
       this.tabs = this.$children;
@@ -56,35 +64,29 @@ export default {
       this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
 
       //Select first tab if none is marked selected
-      if(this.currentTab === -1 && this.totalTabs > 0){  
+      if(this.currentTab === -1 && this.totalTabs > 0){
           this.tabs[0].isActive = true;
           this.currentTab = 0;
       }
     },
 
     updated(){
-        /*
-          Using this lifehook - since store variable gets updated after component is mounted
-          isValidationSupport checks if user is looking to perform validation on each step
-        */
-        this.isValidationSupport = (Object.keys(this.storeState.v).length !== 0 && this.storeState.v.constructor === Object) ? true : false;
     },
 
     methods:{
+        ...mapActions([
+          'setIsNextable'
+        ]),
         previousTab(){
             this._switchTab(this.currentTab - 1);
-
             this.$emit('onPreviousStep'); 
         },
         nextTab(){
-            if(this._validateCurrentTab() === false)
-                return;
             this._switchTab(this.currentTab + 1);    
-            this.$emit('onNextStep');     
+            this.$emit('onNextStep');
         },
 
         reset(){
-
            this.tabs.forEach(tab => {
              tab.isActive = false;
              tab.isValidated = false;
@@ -106,22 +108,11 @@ export default {
               this._switchTab(index);
             }
 
-            if(this._validateCurrentTab() === false){
-                return;
-            }
-
-            if(this.tabs[index - 1].isValidated === false){
-                return;
-            }
-
             this._switchTab(index);
-            
         },
 
 
         onSubmit(){
-            if(this._validateCurrentTab() === false)
-                return;
             this.$emit('onComplete');
         },
 
@@ -134,22 +125,6 @@ export default {
             this.currentTab = index;
             this.tabs[index].isActive = true;
         },
-
-        _validateCurrentTab(){
-          if(!this.isValidationSupport)  //Check if user wants to validate 
-              return true;
-
-          this.storeState.v.$touch();
-          console.log(this.storeState.v);
-          if (this.storeState.v.$invalid) {
-              this.tabs[this.currentTab].isValidated = false;
-              return false;
-          }
-
-          this.tabs[this.currentTab].isValidated = true;
-
-          return true;
-        }
     },
     watch:{
        currentTab(){
@@ -160,12 +135,19 @@ export default {
 }
 </script>
 
-
 <style lang = "scss">
-
   .vue-step-wizard{
     margin: 0px !important;
     min-height : 600px;
+  }
+
+  .activeButton {
+    background-color: #126fde
+  }
+
+  .disabledButton {
+    background-color: #126fde;
+    opacity: 0.6;
   }
 
   .step-side {

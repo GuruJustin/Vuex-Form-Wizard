@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Store from './store/index'
+import Vuelidate from 'vuelidate'
 
+Vue.use(Vuelidate)
 Vue.use(Vuex);
 
 import App from './App.vue'
