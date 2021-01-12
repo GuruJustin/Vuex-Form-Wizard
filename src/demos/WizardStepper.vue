@@ -1,23 +1,9 @@
 <template>
     <form-wizard ref="formwizard" @onComplete="onComplete" @onNextStep="nextStep" @onPreviousStep="previousStep" @onReset="reset">
         <tab-content title="YOUR REQUIREMENTS" :selected="true">
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" class="form-control" :class="hasError('fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.fullName">
-                <div v-if="hasError('fullName')" class="invalid-feedback">
-                    <div class="error" v-if="!$v.formData.fullName.required">Please provide a valid name.</div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="email">Your Email</label>
-                <input type="email" class="form-control" :class="hasError('email') ? 'is-invalid' : ''" placeholder="Enter your email" v-model="formData.email">
-                <div v-if="hasError('email')" class="invalid-feedback">
-                    <div class="error" v-if="!$v.formData.email.required">Email field is required</div>
-                    <div class="error" v-if="!$v.formData.email.email">Should be in email format</div>
-                </div>
-            </div>
+            <requirement></requirement>
         </tab-content>
-        <tab-content title="ABOUT YOU"> 
+        <tab-content title="ABOUT YOU">
             <div class="form-group">
                 <label for="companyName">Your Company Name</label>
                 <input type="text" class="form-control" :class="hasError('companyName') ? 'is-invalid' : ''" placeholder="Enter your Company / Organization name" v-model="formData.companyName">
@@ -27,7 +13,7 @@
             </div>
             <div class="form-group">
                 <label for="numberOfEmployees">Number of Employees</label>
-                <input type="text" class="form-control" :class="hasError('numberOfEmployees') ? 'is-invalid' : ''" placeholder="Enter Total Number of Employees" v-model="formData.numberOfEmployees">
+                <input type="text" class="form-control" :class="hasError('numberOfEmployees') ? 'is-invalid' : ''" placeholder="Enter    Number of Employees" v-model="formData.numberOfEmployees">
                 <div v-if="hasError('numberOfEmployees')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.numberOfEmployees.required">Please provide number of employees in your company.</div>
                     <div class="error" v-if="!$v.formData.numberOfEmployees.numeric">Should be a valid value.</div>
@@ -67,10 +53,25 @@ import { email } from 'vuelidate/lib/validators';
 import { numeric } from 'vuelidate/lib/validators';
 const checked = (value) => value === true;
 
+
+//Vuex
+import store from '../store/index'
+import * as types from '../store/mutations/types'
+import { mapGetters} from 'vuex'
+
+//StepComponents
+import Requirement from './steps/requirement.vue'
+
+
 export default {
-    name: 'SimpleStepper',
+    name: 'WizardStepper',
+    computed:{
+        ...mapGetters({
+            count: 'getCount'
+        }),
+    },
     components: {
-        FormWizard, TabContent
+        FormWizard, TabContent, Requirement
     },
     mixins: [ValidationHelper],
     data(){
@@ -87,10 +88,16 @@ export default {
                 {fullName: {required}, email: {required, email} },
                 {companyName: {required}, numberOfEmployees: {required, numeric} },
                 {referral: {required}, terms: {checked} }
-            ]
+            ],
         }
     },
     methods:{
+        addCount() {
+            store.dispatch({
+                type : types.Increment,
+                amount : 20
+            })
+        },
         onComplete(){
             alert("Submitting Form ! Rock On");
             this.$refs.formwizard.changeStatus();

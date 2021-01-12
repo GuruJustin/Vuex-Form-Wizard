@@ -25,9 +25,10 @@
           <div class="step-footer">
             <template v-if="!submitSuccess">
               <button @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
-              <button @click="nextTab" v-if="currentTab < totalTabs - 1 && currentTab != totaltabs-1" class="step-button step-button-next">Next</button>
+              <button @click="nextTab" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next">Next</button>
               <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Send</button>
             </template>
+
             <template v-else>
               <button @click="reset" class="step-button step-button-reset">Reset</button>
             </template>
@@ -50,15 +51,15 @@ export default {
         }
     },
     mounted(){
-            this.tabs = this.$children;
-            this.totalTabs = this.tabs.length;
-            this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
+      this.tabs = this.$children;
+      this.totalTabs = this.tabs.length;
+      this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
 
-            //Select first tab if none is marked selected
-            if(this.currentTab === -1 && this.totalTabs > 0){  
-                this.tabs[0].isActive = true;
-                this.currentTab = 0;
-            }
+      //Select first tab if none is marked selected
+      if(this.currentTab === -1 && this.totalTabs > 0){  
+          this.tabs[0].isActive = true;
+          this.currentTab = 0;
+      }
     },
 
     updated(){
@@ -75,16 +76,11 @@ export default {
 
             this.$emit('onPreviousStep'); 
         },
-
         nextTab(){
-
             if(this._validateCurrentTab() === false)
                 return;
-
             this._switchTab(this.currentTab + 1);    
-
-            this.$emit('onNextStep');          
-              
+            this.$emit('onNextStep');     
         },
 
         reset(){
@@ -140,19 +136,19 @@ export default {
         },
 
         _validateCurrentTab(){
-            if(!this.isValidationSupport)  //Check if user wants to validate 
-                return true;
+          if(!this.isValidationSupport)  //Check if user wants to validate 
+              return true;
 
-            this.storeState.v.$touch();
+          this.storeState.v.$touch();
+          console.log(this.storeState.v);
+          if (this.storeState.v.$invalid) {
+              this.tabs[this.currentTab].isValidated = false;
+              return false;
+          }
 
-            if (this.storeState.v.$invalid) {
-                this.tabs[this.currentTab].isValidated = false;
-                return false;
-            }
+          this.tabs[this.currentTab].isValidated = true;
 
-            this.tabs[this.currentTab].isValidated = true;
-
-            return true;
+          return true;
         }
     },
     watch:{
@@ -163,6 +159,8 @@ export default {
     
 }
 </script>
+
+
 <style lang = "scss">
 
   .vue-step-wizard{

@@ -21,8 +21,8 @@
     "dist"
   ],
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve --fix",
+    "build": "vue-cli-service build --fix",
     "build-library": "vue-cli-service build --target lib --name vue-step-wizard ./src/install.js",
     "lint": "vue-cli-service lint"
   },
@@ -30,20 +30,32 @@
   "unpkg": "./dist/vue-step-wizard.common.min.js",
   "dependencies": {
     "bootstrap": "^4.5.3",
-    "core-js": "^2.6.5",
-    "vue": "^2.6.10",
-    "vuelidate": "^0.7.5"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.12.0",
-    "@vue/cli-plugin-eslint": "^3.12.0",
-    "@vue/cli-service": "^3.12.0",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
+    "core-js": "^3.8.2",
     "node-sass": "^5.0.0",
     "sass-loader": "^10.1.1",
-    "vue-template-compiler": "^2.6.10"
+    "vue": "^2.6.12",
+    "vue-cli": "^2.9.6",
+    "vue-loader": "^15.9.6",
+    "vue-select": "^3.11.2",
+    "vuelidate": "^0.7.6",
+    "vuex": "^3.6.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.10",
+    "@vue/cli-plugin-eslint": "^4.5.10",
+    "@vue/cli-service": "^4.5.10",
+    "@vue/cli-plugin-pwa": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/eslint-config-standard": "^5.1.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.6.12",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0"
   },
   "eslintConfig": {
     "root": true,
@@ -54,9 +66,11 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": "off"
+    },
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "babel-eslint "
     }
   },
   "postcss": {

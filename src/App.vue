@@ -1,16 +1,16 @@
 <template>
   <div class="container py-5" id="app">
-    <SimpleStepper></SimpleStepper>
+    <WizardStepper></WizardStepper>
   </div>
 </template>
 
 <script>
-import SimpleStepper from './demos/SimpleStepper.vue'
+import WizardStepper from './demos/WizardStepper.vue'
 
 export default {
   name: 'app',
   components: {
-    SimpleStepper
+    WizardStepper
   }
 }
 </script>
