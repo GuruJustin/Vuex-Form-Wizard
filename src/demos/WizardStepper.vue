@@ -6,7 +6,11 @@
         <tab-content title="ABOUT YOU">
             <personal-information></personal-information>
         </tab-content>
+        <tab-content title="Communication">
+            <communication-address></communication-address>
+        </tab-content>
         <tab-content title="ADDITIONAL INFORMATION">
+            <additional-information></additional-information>
         </tab-content>
     </form-wizard>
 </template>
@@ -16,6 +20,8 @@ import FormWizard from '../components/FormWizard.vue';
 import TabContent from '../components/TabContent.vue';
 import Requirement from './steps/requirement.vue'
 import PersonalInformation from './steps/per_information.vue'
+import communicationAddress from './steps/communication.vue'
+import AdditionalInformation from './steps/additional.vue'
 
 const checked = (value) => value === true;
 
@@ -24,9 +30,9 @@ import { mapGetters} from 'vuex'
 export default {
     name: 'WizardStepper',
     components: {
-        FormWizard, TabContent, Requirement,PersonalInformation
+        FormWizard, TabContent, Requirement, PersonalInformation, communicationAddress, AdditionalInformation
     },
-    computed:{
+    compute :{
         ...mapGetters({
             formData: 'getWizardForm'
         }),

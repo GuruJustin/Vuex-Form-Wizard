@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="col-md-6 pt-4">
+        <div class="col-md-6">
             <div class="form-group">
                 <label for="emailAddress">Email*</label>
                 <input type="email" class="form-control" :class="hasError('emailAddress') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.emailAddress" @change="changeState()">
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 pt-4">
+        <div class="col-md-6">
             <div class="form-group">
                 <label for="emailConfirmation">Email Confirmation*</label>
                 <input type="email" class="form-control" :class="hasError('emailConfirmation') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.emailConfirmation" @change="changeState()">
@@ -43,18 +43,52 @@
                 </div>
             </div>
         </div>
+        
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number*</label>
+                <vue-tel-input v-model="formData.phoneNumber" :class="hasError('phoneNumber') ? 'is-invalid' : ''" @change="changeState()"></vue-tel-input>
+                <div class="invalid-feedback"  style="display:block">
+                    <div class="error" v-if="!$v.formData.phoneNumber.require">Please provide the valid phone number.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class ="col-md-6"></div>
+        
+        <div class="col-md-6  langArea">
+            <div class="form-group">
+                <label for="preferLang">Prefered Language*</label>
+                    <v-select 
+                        v-model="formData.preferLang"
+                        label="countryName"
+                        :options="languages"
+                        @change="changeState()"
+                        class="style-chooser"/>
+                <div class="invalid-feedback" style="display:block">
+                    <div class="error" v-if="!$v.formData.preferLang.required">Please select on of the fields.</div>
+                </div>
+            </div>
+            <div class="langInfo">
+                <v-icon name="alert-circle"
+                    v-tooltip="'Prefered Language is the defualt language Guardian will use to contact you'"
+                ></v-icon>
+            </div>
+        </div>
+    
     </div>
 </template>
 
 <script>
 import vSelect from 'vue-select'
-import 'vue-select/dist/vue-select.css';
-
+import 'vue-select/dist/vue-select.css'
+import { VueTelInput } from 'vue-tel-input'
+import VTooltip from 'v-tooltip'
 
 import Vuelidate from 'vuelidate'
 import { validationMixin } from 'vuelidate'
-import { required, email,sameAs } from 'vuelidate/lib/validators';
-
+import { required, email, sameAs, alphaNum } from 'vuelidate/lib/validators'
 
 
 import * as types from '../../store/mutations/types'
@@ -64,7 +98,9 @@ export default {
     name : "PersonalInformation",
     mixins: [validationMixin],
     components: {
-        vSelect
+        vSelect,
+        VueTelInput,
+        VTooltip
     },
     computed:{
         ...mapGetters({
@@ -73,15 +109,7 @@ export default {
     },
     data () {
         return {
-            jobs : [
-                'architect', 'barber', 'cook', 'developer'
-            ],
-            interests : [
-                'Facades', 'Gacades', 'Hacades'
-            ],
-            benefits : [
-                'Solar Protection', 'Wind Force', 'Heat'
-            ],
+            languages : ['English','Chinese','German', 'Spanish', 'Korean']
         }
     },
     validations:{
@@ -90,7 +118,7 @@ export default {
             lastName: {required}, 
             emailAddress: {required, email}, 
             emailConfirmation: { sameAsEmailAddress : sameAs('emailAddress') },
-            phoneNumber: {required},
+            phoneNumber: {required,alphaNum},
             preferLang: {required},
         }
     },
@@ -98,7 +126,7 @@ export default {
         ...mapActions(['setIsNextable']),
         hasError(fieldName){
             // return this.$v.fieldName.$error
-            return this.$v.formData[fieldName].$error;
+            return this.$v.formData[fieldName].$invalid;
         },
         async changeState() {
             if (this.$v.formData.$invalid) {
@@ -124,5 +152,17 @@ export default {
 .style-chooser .vs__dropdown-menu {
     background: white;
     height : calc(1.5em + .75rem + 2px) !important;
+}
+
+.langArea {
+    position : relative;
+    .langInfo {
+        position : absolute;
+        right : -15px;
+        bottom : 50px;
+        height : 20px;
+        width : 20px;
+        color : green
+    }
 }
 </style>

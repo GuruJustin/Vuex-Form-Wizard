@@ -16,6 +16,15 @@ const store = new Vuex.Store({
       emailAddress: null, 
       phoneNumber: null,
       preferLang: null,
+      country: null, 
+      state: null, 
+      address1: null, 
+      address2: null,
+      city: null,
+      zipCode: null,
+      message : null,
+      reCaptcha : null,
+      receive : null
     },
     isNextable : false
   },

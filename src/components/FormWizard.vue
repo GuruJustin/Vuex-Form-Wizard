@@ -26,7 +26,7 @@
             <template v-if="!submitSuccess">
               <button v-if="currentTab!=0" @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
               <button style="visibility:hidden">aa</button>
-              <!-- <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button> -->
+              <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button>
               <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Send</button>
             </template>
 
