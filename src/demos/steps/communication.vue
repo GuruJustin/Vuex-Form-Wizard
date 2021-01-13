@@ -10,9 +10,9 @@
                 <label for="country">Country*</label>
                 <country-select
                     v-model = "formData.country"
-                    @change="changeState()"
                     :country="formData.country"
                     topCountry="US"
+                    :on-change="changeState()"
                     class="form-control"
                     :class="hasError('country') ? 'is-invalid' : ''" 
                 />
@@ -26,10 +26,10 @@
                 <label for="state">State/Province*</label>
                 <region-select  
                     v-model = "formData.state"
-                    @change="changeState()"
                     :country="formData.country"
                     :region="formData.state"
                     class="form-control"
+                    :on-change="changeState()"
                     :class="hasError('state') ? 'is-invalid' : ''" 
                 />
                 <div class="invalid-feedback"  style="display:block">
@@ -88,7 +88,6 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import vueCountryRegionSelect from 'vue-country-region-select'
 
-
 import Vuelidate from 'vuelidate'
 import { validationMixin } from 'vuelidate'
 import { required, numeric } from 'vuelidate/lib/validators'
@@ -102,7 +101,7 @@ export default {
     mixins: [validationMixin],
     components: {
         vSelect,
-        vueCountryRegionSelect,
+        vueCountryRegionSelect
     },
     computed:{
         ...mapGetters({
@@ -126,7 +125,7 @@ export default {
     },
     methods : {
         ...mapActions(['setIsNextable']),
-        hasError(fieldName){
+        hasError(fieldName) {
             // return this.$v.fieldName.$error
             return this.$v.formData[fieldName].$invalid;
         },

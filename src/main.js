@@ -7,7 +7,9 @@ import feather from 'vue-icon'
 import VTooltip from 'v-tooltip'
 import vueCountryRegionSelect from 'vue-country-region-select'
 import TextareaAutosize from 'vue-textarea-autosize'
- 
+import vmodal from 'vue-js-modal'
+
+Vue.use(vmodal)
 Vue.use(TextareaAutosize)
 Vue.use(vueCountryRegionSelect)
 Vue.use(VTooltip)

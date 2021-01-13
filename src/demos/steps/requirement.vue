@@ -71,8 +71,6 @@ import Vuelidate from 'vuelidate'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators';
 
-
-
 import * as types from '../../store/mutations/types'
 import { mapGetters, mapActions} from 'vuex'
 

@@ -37,7 +37,11 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label for="emailConfirmation">Email Confirmation*</label>
-                <input type="email" class="form-control" :class="hasError('emailConfirmation') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.emailConfirmation" @change="changeState()">
+                <input type="email" class="form-control" 
+                    :class="hasError('emailConfirmation') ? 'is-invalid' : ''" 
+                    placeholder="First Name" 
+                    v-model="formData.emailConfirmation" 
+                    @change="changeState()">
                 <div class="invalid-feedback"  style="display:block">
                     <div class="error" v-if="!$v.formData.emailConfirmation.sameAsEmailAddress">Please provide the equal email.</div>
                 </div>
@@ -48,32 +52,35 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label for="phoneNumber">Phone Number*</label>
-                <vue-tel-input v-model="formData.phoneNumber" :class="hasError('phoneNumber') ? 'is-invalid' : ''" @change="changeState()"></vue-tel-input>
+                {{formData.phoneNumber}}
+                <VuePhoneNumberInput 
+                    v-model="formData.phoneNumber"  
+                    :class="hasError('phoneNumber') ? 'is-invalid' : ''" 
+                    :on-change="changeState()" />
                 <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.phoneNumber.require">Please provide the valid phone number.</div>
+                    <div class="error" v-if="!$v.formData.phoneNumber.required">Please provide the valid phone number.</div>
                 </div>
             </div>
         </div>
 
         <div class ="col-md-6"></div>
         
-        <div class="col-md-6  langArea">
+        <div class="col-md-6 langArea">
             <div class="form-group">
                 <label for="preferLang">Prefered Language*</label>
                     <v-select 
                         v-model="formData.preferLang"
+                        :on-change="changeState()"
                         label="countryName"
                         :options="languages"
-                        @change="changeState()"
                         class="style-chooser"/>
                 <div class="invalid-feedback" style="display:block">
                     <div class="error" v-if="!$v.formData.preferLang.required">Please select on of the fields.</div>
                 </div>
             </div>
             <div class="langInfo">
-                <v-icon name="alert-circle"
-                    v-tooltip="'Prefered Language is the defualt language Guardian will use to contact you'"
-                ></v-icon>
+                <v-icon name="alert-circle" 
+                    v-tooltip="{content : 'Prefered lanuage is defined'}"></v-icon>
             </div>
         </div>
     
@@ -86,9 +93,12 @@ import 'vue-select/dist/vue-select.css'
 import { VueTelInput } from 'vue-tel-input'
 import VTooltip from 'v-tooltip'
 
+import 'vue-phone-number-input/dist/vue-phone-number-input.css';
+import VuePhoneNumberInput from 'vue-phone-number-input';
+
 import Vuelidate from 'vuelidate'
 import { validationMixin } from 'vuelidate'
-import { required, email, sameAs, alphaNum } from 'vuelidate/lib/validators'
+import { required, email, sameAs } from 'vuelidate/lib/validators'
 
 
 import * as types from '../../store/mutations/types'
@@ -100,7 +110,8 @@ export default {
     components: {
         vSelect,
         VueTelInput,
-        VTooltip
+        VTooltip,
+        VuePhoneNumberInput
     },
     computed:{
         ...mapGetters({
@@ -118,7 +129,7 @@ export default {
             lastName: {required}, 
             emailAddress: {required, email}, 
             emailConfirmation: { sameAsEmailAddress : sameAs('emailAddress') },
-            phoneNumber: {required,alphaNum},
+            phoneNumber: {required},
             preferLang: {required},
         }
     },
@@ -158,11 +169,116 @@ export default {
     position : relative;
     .langInfo {
         position : absolute;
-        right : -15px;
-        bottom : 50px;
-        height : 20px;
-        width : 20px;
+        right : -20px;
+        top : 40px;
+        height : 25px;
+        width : 25px;
         color : green
     }
+}
+
+.tooltip {
+  display: block !important;
+  z-index: 1000;
+
+  .tooltip-inner {
+    background: black;
+    color: white;
+    border-radius: 16px;
+    padding: 5px 10px 4px;
+  }
+
+  .tooltip-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position: absolute;
+    margin: 5px;
+    border-color: black;
+    z-index: 1001;
+  }
+
+  &[x-placement^="top"] {
+    margin-bottom: 5px;
+    .tooltip-arrow {
+      border-width: 5px 5px 0 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      bottom: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  &[x-placement^="bottom"] {
+    margin-top: 5px;
+    .tooltip-arrow {
+      border-width: 0 5px 5px 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-top-color: transparent !important;
+      top: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  &[x-placement^="right"] {
+    margin-left: 5px;
+    .tooltip-arrow {
+      border-width: 5px 5px 5px 0;
+      border-left-color: transparent !important;
+      border-top-color: transparent !important;
+      border-bottom-color: transparent !important;
+      left: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &[x-placement^="left"] {
+    margin-right: 5px;
+    .tooltip-arrow {
+      border-width: 5px 0 5px 5px;
+      border-top-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      right: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &.popover {
+    $color: #f9f9f9;
+    .popover-inner {
+      background: $color;
+      color: black;
+      padding: 24px;
+      border-radius: 5px;
+      box-shadow: 0 5px 30px rgba(black, .1);
+    }
+
+    .popover-arrow {
+      border-color: $color;
+    }
+  }
+
+  &[aria-hidden='true'] {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .15s, visibility .15s;
+  }
+
+  &[aria-hidden='false'] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity .15s;
+  }
 }
 </style>

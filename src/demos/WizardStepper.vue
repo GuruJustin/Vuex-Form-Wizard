@@ -1,40 +1,63 @@
 <template>
-    <form-wizard ref="formwizard" @onComplete="onComplete" @onNextStep="nextStep" @onPreviousStep="previousStep" @onReset="reset">
-        <tab-content title="YOUR REQUIREMENTS" :selected="true">
-            <requirement></requirement>
-        </tab-content>
-        <tab-content title="ABOUT YOU">
-            <personal-information></personal-information>
-        </tab-content>
-        <tab-content title="Communication">
-            <communication-address></communication-address>
-        </tab-content>
-        <tab-content title="ADDITIONAL INFORMATION">
-            <additional-information></additional-information>
-        </tab-content>
-    </form-wizard>
+    <transition name="modal">
+        <div class="modal-mask">
+            <div class="modal-wrapper">
+                <div class="modal-container">
+                    <form-wizard ref="formwizard" @onComplete="onComplete" @onNextStep="nextStep" @onPreviousStep="previousStep" @onReset="reset">
+                        <tab-content title="YOUR REQUIREMENTS" :selected="true">
+                            <requirement v-if="successed == null"></requirement>
+                        </tab-content>
+                        <tab-content title="ABOUT YOU">
+                            <personal-information v-if="successed == null"></personal-information>
+                        </tab-content>
+                        <tab-content title="COMMUNICATION">
+                            <communication-address v-if="successed == null"></communication-address>
+                        </tab-content>
+                        <tab-content title="ADDITIONAL INFORMATION">
+                            <additional-information v-if="successed == null"></additional-information>
+                        </tab-content>
+
+                        <success-component v-if="successed == 'success'"></success-component>
+                        <error-component v-if="successed == 'failed'"></error-component>
+                    </form-wizard>
+                    <a href ="#" @click="destoryModal()"><h2 class="closeButton">X</h2></a>
+                </div>
+            </div>
+        </div>
+    </transition>
 </template>
 
 <script>
-import FormWizard from '../components/FormWizard.vue';
-import TabContent from '../components/TabContent.vue';
+import FormWizard from '../components/FormWizard.vue'
+import TabContent from '../components/TabContent.vue'
 import Requirement from './steps/requirement.vue'
 import PersonalInformation from './steps/per_information.vue'
 import communicationAddress from './steps/communication.vue'
 import AdditionalInformation from './steps/additional.vue'
 
+import SuccessComponent from './steps/success.vue'
+import ErrorComponent from './steps/error.vue'
+
+
 const checked = (value) => value === true;
 
-import { mapGetters} from 'vuex'
+import { mapGetters, mapActions} from 'vuex'
 
 export default {
     name: 'WizardStepper',
     components: {
-        FormWizard, TabContent, Requirement, PersonalInformation, communicationAddress, AdditionalInformation
+        FormWizard,
+        TabContent,
+        Requirement,
+        PersonalInformation,
+        communicationAddress,
+        AdditionalInformation,
+        SuccessComponent, ErrorComponent
     },
-    compute :{
+    computed :{
         ...mapGetters({
-            formData: 'getWizardForm'
+            formData: 'getWizardForm',
+            successed: 'getSuccessed'
         }),
     },
     data(){
@@ -44,9 +67,13 @@ export default {
     mounted() {
     },
     methods:{
+        ...mapActions([
+            'setSuccessed'
+        ]),
         onComplete(){
-            alert("Submitting Form ! Rock On");
-            this.$refs.formwizard.changeStatus();
+            // alert("Submitting Form ! Rock On");
+            // this.$refs.formwizard.changeStatus();
+            this.setSuccessed({successed: 'success'})
         },
 
         reset(){
@@ -61,7 +88,99 @@ export default {
 
         previousStep(){
             //alert("On Previous Step");
+        },
+
+        destoryModal() {
+            this.$emit('close') 
         }
     }
 }
 </script>
+
+<style scoped lang="scss">
+.modal-mask {
+  position: fixed;
+  z-index: 200;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content :center;
+  align-items:center;
+  transition: opacity 0.3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 100%;
+  transition: .3s cubic-bezier(.25,.8,.25,1);
+  font-family: Helvetica, Arial, sans-serif;
+    position : relative;
+    .modal-header {
+        margin-top : 10px;
+        display:flex;
+        flex-direction :column;
+        justify-content : center !important;
+        align-items:center;
+        color : rgba(0,0,0,.6);
+        margin-bottom: -1px;
+    }
+    .modal-footer {
+        height : 30px;
+        display:flex;
+        flex-direction :column;
+        justify-content : space-between !important;
+        margin-bottom:20px;
+    }
+}
+
+
+.modal-header h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
+  float: right;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+
+.closeButton{
+    position : absolute;
+    right: 30px;
+    top:10px;
+}
+
+</style>

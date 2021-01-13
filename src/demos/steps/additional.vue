@@ -47,8 +47,8 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label for="message">Security check*</label>
-                <vue-recaptcha sitekey="Your key here">
-                    <a>Click me</a>
+                <vue-recaptcha sitekey="6Le2QiAaAAAAABwLJHk3M_xATE1AUr64biNE_H4A">
+                    <button>Click me</button>
                 </vue-recaptcha>
             </div>
         </div>

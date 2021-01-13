@@ -1,72 +1,81 @@
 <template>
     <div class="container  vue-step-wizard row">
         <div class="col-md-3 step-side">
-          <div class = "form-title">
+          <div class = "form-title" >
             <h6 class = "title">Contact Form</h6>
             <div class="break"></div>
           </div>
 
-          <ul class="step-pills">
-              <li @click.prevent.stop="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
+
+          <ul v-if="!mobile" class="step-pills">
+              <li @click="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`" v-if="tab.title">
                   <a class="step-link" href="#">
                     <span class="tabStatus">{{index+1}} </span> 
                     <span class="tabLabel">{{tab.title}}</span>
                   </a>
               </li>
           </ul>
+
+          <div v-if="mobile" class="mobileSideBar">
+            STEP {{currentTab + 1}}/{{totalTabs-1}}
+          </div>
         </div>
 
         <div class="col-md-9 step-body">
-          <form>
-              <slot></slot>
-          </form>
-  
-          <div class="step-footer">
-
-            <template v-if="!submitSuccess">
+          <slot></slot>
+          <div class="step-footer" >
+            <template v-if="successed == null">
               <button v-if="currentTab!=0" @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
               <button style="visibility:hidden">aa</button>
               <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button>
               <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Send</button>
-            </template>
 
-            <template v-else>
-              <button @click="reset" class="step-button step-button-reset">Reset</button>
+              <div v-if="warningShow" class="warningSend">
+                Submission failed due to error, please try again. 
+                <div>
+                  <v-icon name="alert-triangle" class = 'icon-failed'></v-icon>
+                </div>
+              </div>
             </template>
-
           </div>
         </div>
     </div>
 </template>
 <script>
-import { store } from "./store.js";
 import { mapGetters, mapActions} from 'vuex'
 
 export default {
     name: 'form-wizard',
     data(){
-        return{
-            tabs: [],
-            currentTab : 0,
-            totalTabs : 0,
-            storeState: store.state,
-            submitSuccess : false,
-        }
+      return{
+        tabs: [],
+        totalTabs : 0,
+        submitSuccess : false,
+        warningShow : false,
+        mobile : false,
+      }
     },
     computed:{
-        ...mapGetters({
-            nextable : 'getIsNextable'
-        }),
+      ...mapGetters({
+        nextable : 'getIsNextable',
+        getWizardStep : 'getWizardStep',
+        successed : 'getSuccessed',
+        failedCount : 'getFailedCount',
+        currentTab : 'getCurrentTab'
+      }),
     },
     mounted(){
       this.tabs = this.$children;
+      this.mobile = this.isMobile()
+      console.log(this.mobile)
       this.totalTabs = this.tabs.length;
-      this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
+
+      this.setCurrentTab({currentTab:this.tabs.findIndex((tab) => tab.isActive === true)})
 
       //Select first tab if none is marked selected
       if(this.currentTab === -1 && this.totalTabs > 0){
           this.tabs[0].isActive = true;
-          this.currentTab = 0;
+          this.setCurrentTab({currentTab: 0});
       }
     },
 
@@ -75,60 +84,75 @@ export default {
 
     methods:{
         ...mapActions([
-          'setIsNextable'
+          'setIsNextable', 
+          'setWizardStep',
+          'setCurrentTab',
+          'setFailedCount',
+          'setSuccessed',
+          'sendAllData'
         ]),
+        isMobile() {
+          if (screen.width <= 760) {
+            return true
+          } else {
+            return false
+          }
+        }, 
         previousTab(){
-            this._switchTab(this.currentTab - 1);
-            this.$emit('onPreviousStep'); 
+          this._switchTab(this.currentTab - 1)
+          this.$emit('onPreviousStep')
         },
         nextTab(){
-            this._switchTab(this.currentTab + 1);    
-            this.$emit('onNextStep');
+          this.setSuccessed({successed:null})
+
+          this.setIsNextable({nextable: false})
+          if (this.getWizardStep < this.currentTab + 1)
+            this.setWizardStep({stepNumber : this.currentTab + 1})
+          this._switchTab(this.currentTab + 1);
+          this.$emit('onNextStep');
         },
-
-        reset(){
-           this.tabs.forEach(tab => {
-             tab.isActive = false;
-             tab.isValidated = false;
-           });
-
-           this._switchTab(0);
-           this.submitSuccess = false;
-           this.storeState.v.$reset();
-
-           this.$emit('onReset');
-        },
-
         changeStatus(){
-            this.submitSuccess = true;
+          this.submitSuccess = true;
         },
 
         selectTab(index){
-            if(index < this.currentTab){
-              this._switchTab(index);
-            }
 
+          this.setSuccessed({successed:null})
+          if (this.getWizardStep >= index)
             this._switchTab(index);
         },
 
-
-        onSubmit(){
+        async onSubmit(){
+          let response = 'failed'; 
+          await this.sendAllData()
+            .then(res => {
+              response = res
+            })
+          if (response == 'failed') {
+            if (this.failedCount >= 3) {
+              this.setSuccessed({successed:'failed'})
+            }
+            this.warningShow = true;
+            console.log(this.failedCount)
+          } else {
+              this.setSuccessed({successed:'successed'})
             this.$emit('onComplete');
+          }
         },
 
-        _switchTab(index){
+        async _switchTab(index){
             //Disable all tabs
-            this.tabs.forEach(tab => {
-              tab.isActive = false;
-            });
+          this.tabs.forEach(tab => {
+            tab.isActive = false;
+          });
 
-            this.currentTab = index;
-            this.tabs[index].isActive = true;
+          await this.setCurrentTab({currentTab:index})
+          this.tabs[index].isActive = true;
         },
     },
     watch:{
        currentTab(){
-          store.setCurrentTab(this.currentTab);
+          this.setCurrentTab({currentTab : this.currentTab})
        }
     }
     
@@ -136,9 +160,25 @@ export default {
 </script>
 
 <style lang = "scss">
+
+  .warningSend {
+    position : absolute;
+    right : 8px;
+    bottom : -15px;
+    color : red;
+    font-size : 12px;
+    display:flex;
+    flex-direction : row;
+    justify-content : space-between;
+    div {
+      margin-left : 5px;
+      width : 16px;
+    }
+  }
   .vue-step-wizard{
     margin: 0px !important;
-    min-height : 600px;
+    min-height : 700px;
+    max-height : 700px;
   }
 
   .activeButton {
@@ -222,6 +262,7 @@ export default {
     justify-content : space-between;
 
     .step-footer{
+      position : relative;
       display :flex;
       flex-direction : row;
       justify-content : space-between;
@@ -264,10 +305,28 @@ export default {
     }
   }
 
-  
-  @media only screen and  (max-device-width : 480px) {
+  .mobileSideBar {
+    display:flex;
+    justify-content:center;
+    height : 50px;
+    align-items: center
+  }
+    
+  @media only screen and  (max-device-width : 760px) {
     .step-body {
       padding : 1rem 2rem !important;
+    }
+    .form-title {
+      display:flex;
+      flex-direction:column;
+      height : 50px;
+      align-items: center;
+      .break{
+        min-height : 2px;
+        background : #1e1e1e;
+        width : 50px;
+      }
+      margin-bottom : 30px;
     }
   }
 </style>
