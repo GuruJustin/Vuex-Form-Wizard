@@ -17,23 +17,10 @@ export default {
     mounted(){
         store.setValidation(this.$v);
     },
-    // computed:{
-    //     rules() {
-    //         if(this.validationRules)
-    //             return this.validationRules[this.storeState.currentTab] ? this.validationRules[this.storeState.currentTab] : {}
-    //         else
-    //             return {};
-    //     },
-    // },
     methods:{
         hasError(fieldName){
             return (fieldName in this.$v.formData) && (this.$v.formData[fieldName].$error)
         }
     },
-    // validations() {
-    //     return {
-    //         formData : this.rules
-    //     };
-    // }
 }
 </script>

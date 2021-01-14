@@ -45,11 +45,11 @@
           <slot></slot>
           <div class="step-footer" >
             <!-- <template v-if="successed == null"> -->
-            <template>
+            <template v-if="successed == null">
               <button v-if="currentTab!=0" @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
               <button style="visibility:hidden">aa</button>
               <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button>
-              <button @click="onSubmit" v-if="currentTab == totalTabs-1" class="step-button step-button-submit">Send</button>
+              <button @click="onSubmit" :disabled="!nextable" v-if="currentTab == totalTabs-1" class="step-button step-button-submit" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Send</button>
               <div v-if="warningShow" class="warningSend">
                 Submission failed due to error, please try again. 
                 <div>
@@ -60,39 +60,6 @@
           </div>
         </div>
     </div>
-    <!-- <div class="vue-step-wizard">
-        <div class="step-header">
-        <div class="step-progress">
-            <div class="bar progressbar" :style="{ width: progress + '%' }">
-            </div>
-        </div>
-        <ul class="step-pills">
-            <li @click.prevent.stop="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
-                <a class="step-link" href="#">
-                        <span class="tabStatus">{{index+1}} </span> 
-                        <span class="tabLabel">{{tab.title}}</span>
-                </a>
-            </li>
-        </ul>
-        </div>
-        <div class="step-body">
-            <form>
-                <slot></slot>
-            </form>
-        </div>
-        <div class="step-footer">
-            <div class="btn-group" role="group">
-                <template v-if="!submitSuccess">
-                  <button @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Previous</button>
-                  <button @click="nextTab" v-if="currentTab < totalTabs - 1" class="step-button step-button-next">Next</button>
-                  <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Submit</button>
-                </template>
-                <template v-else>
-                  <button @click="reset" class="step-button step-button-reset">Reset</button>
-                </template>
-            </div>
-        </div>
-    </div> -->
 </template>
 <script>
 import { mapGetters, mapActions} from 'vuex'

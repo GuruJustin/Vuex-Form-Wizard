@@ -18,7 +18,7 @@ export const store = {
         address2: null,
         city: null,
         zipCode: null,
-        message : null,
+        message : '',
         reCaptcha : null,
         receive : null,
         

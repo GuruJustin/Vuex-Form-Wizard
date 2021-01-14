@@ -7,21 +7,22 @@
         
         <div class="col-md-12">
             <div class="form-group">
-                <label for="message">Your Message</label>
+                <label for="message">Your Message *</label>
                 <textarea-autosize
                     ref="myTextarea"
                     class="form-control"
                     v-model="formData.message"
+                    :on-change="changeState()"
                     :min-height="100"
                     :max-height="100"
                     :class="hasError('message') ? 'is-invalid' : ''"
                 />
-                
-                <div class="invalid-feedback" style="display:flex; flex-direction:row-reverse; justify-content:space-between">
-                    <div style="color:black">600</div>
+                <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.message.maxLength">Please input under 600 characteristics.</div>
+                    <div class="error" v-if="!$v.formData.message.required">This field is required.</div>
                 </div>
             </div>
+            <div style="color:black">{{charCount}}/600</div>
         </div>
         
         <div class="col-md-12">
@@ -57,7 +58,6 @@
 <script>
 import VueRecaptcha from 'vue-recaptcha';
 
-import Vuelidate from 'vuelidate'
 import ValidationHelper from '../../components/ValidationHelper.vue';
 import { required, maxLength } from 'vuelidate/lib/validators'
 
@@ -70,18 +70,36 @@ export default {
     components: {
         VueRecaptcha 
     },
+    mounted() {
+        this.charCount = this.formData.message != null ? this.formData.message.length : 0
+    },
     data () {
         return {
+            charCount : 0,
             formData : store.state.formData
         }
     },
     validations:{
         formData : {
-            message: {maxLength}, 
+            message: {
+                required, 
+                maxLength : maxLength(600)
+            }, 
             // reCaptcha: {required}, 
         }
     },
+
     methods : {
+        ...mapActions(['setIsNextable']),
+        async changeState() {
+            this.charCount = this.formData.message.length
+            if (this.formData.message.length >=1 )
+                this.storeState.v.$touch();
+            if (!this.$v.formData.$invalid)
+                await this.setIsNextable({nextable:true})
+            else
+                await this.setIsNextable({nextable:false})
+        }
     }
 }
 </script>
