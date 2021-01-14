@@ -6,7 +6,7 @@
         </div>
         
         <div class="col-md-12">
-            <div class="form-group">
+            <div class="form-group messageForm">
                 <label for="message">Your Message *</label>
                 <textarea-autosize
                     ref="myTextarea"
@@ -21,8 +21,8 @@
                     <div class="error" v-if="!$v.formData.message.maxLength">Please input under 600 characteristics.</div>
                     <div class="error" v-if="!$v.formData.message.required">This field is required.</div>
                 </div>
+                <div class="numberTag">{{charCount}}/600</div>
             </div>
-            <div style="color:black">{{charCount}}/600</div>
         </div>
         
         <div class="col-md-12">
@@ -117,5 +117,17 @@ export default {
 .style-chooser .vs__dropdown-menu {
     background: white;
     height : calc(1.5em + .75rem + 2px) !important;
+}
+
+.numberTag {
+    position :absolute;
+    top : 135px;
+    right : 0px;
+    color : black;
+}
+
+.messageForm{
+    position:relative;
+    margin-bottom: 20px;
 }
 </style>
