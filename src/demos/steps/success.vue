@@ -10,7 +10,7 @@
             <h5>All done! Your request have been sent!</h5>
             <p>You will receive a confirmation email soon with your request details.</p>
 
-            <a class="back" @click="back()">Great Thanks</a>
+            <button class="back" @click="back()">Great Thanks</button>
         </div>
     </div>
 </template>
@@ -20,6 +20,7 @@ export default {
     name : "SuccessComponent",
     methods : {
         back() {
+            this.$emit('destroy')
         }
     }
 }
@@ -50,5 +51,8 @@ export default {
         color : #3333ff;
         font-weight : bold;
     }
+}
+button {
+    background : white;
 }
 </style>

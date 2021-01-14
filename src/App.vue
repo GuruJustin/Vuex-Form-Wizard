@@ -1,6 +1,6 @@
 <template>
   <div class="container py-5" id="app">
-      <button @click="showModal=true" class="uk-button uk-button-primary">Contact Form</button>
+    <button @click="showModal=true" class="uk-button uk-button-primary">Contact Form</button>
     <WizardStepper 
       v-if="showModal"
       @close="showModal=false"

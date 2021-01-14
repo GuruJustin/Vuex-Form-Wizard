@@ -13,12 +13,12 @@
                         <tab-content title="COMMUNICATION">
                             <communication-address v-if="successed == null"></communication-address>
                         </tab-content>
-                        <tab-content title="ADDITIONAL INFORMATION">
+                        <tab-content title="AdditionalInformation">
                             <additional-information v-if="successed == null"></additional-information>
                         </tab-content>
-
-                        <success-component v-if="successed == 'success'"></success-component>
-                        <error-component v-if="successed == 'failed'"></error-component>
+                        
+                        <success-component v-if="successed == 'success'" @destroy="destoryModal" ></success-component>
+                        <error-component v-if="successed == 'failed'" @destroy="destoryModal" ></error-component>
                     </form-wizard>
                     <a href ="#" @click="destoryModal()"><h2 class="closeButton">X</h2></a>
                 </div>
@@ -28,8 +28,12 @@
 </template>
 
 <script>
-import FormWizard from '../components/FormWizard.vue'
-import TabContent from '../components/TabContent.vue'
+import FormWizard from '../components/FormWizard.vue';
+import TabContent from '../components/TabContent.vue';
+import ValidationHelper from '../components/ValidationHelper.vue';
+import { required, email, numeric, maxLength, sameAs } from 'vuelidate/lib/validators';
+
+
 import Requirement from './steps/requirement.vue'
 import PersonalInformation from './steps/per_information.vue'
 import communicationAddress from './steps/communication.vue'
@@ -40,8 +44,9 @@ import ErrorComponent from './steps/error.vue'
 
 
 const checked = (value) => value === true;
-
+import {store} from "../components/store.js"
 import { mapGetters, mapActions} from 'vuex'
+
 
 export default {
     name: 'WizardStepper',
@@ -52,28 +57,32 @@ export default {
         PersonalInformation,
         communicationAddress,
         AdditionalInformation,
-        SuccessComponent, ErrorComponent
-    },
-    computed :{
-        ...mapGetters({
-            formData: 'getWizardForm',
-            successed: 'getSuccessed'
-        }),
+        SuccessComponent,
+        ErrorComponent
     },
     data(){
         return {
         }
     },
+    computed :{
+        ...mapGetters({
+            successed: 'getSuccessed'
+        }),
+    },
+
     mounted() {
+        this.setSuccessed({successed:null})
     },
     methods:{
         ...mapActions([
             'setSuccessed'
         ]),
+        destoryModal() {
+            this.$emit('close') 
+        },
         onComplete(){
-            // alert("Submitting Form ! Rock On");
-            // this.$refs.formwizard.changeStatus();
-            this.setSuccessed({successed: 'success'})
+            //alert("Submitting Form ! Rock On");
+            //this.setSuccessed({successed: 'success'})
         },
 
         reset(){
@@ -88,10 +97,6 @@ export default {
 
         previousStep(){
             //alert("On Previous Step");
-        },
-
-        destoryModal() {
-            this.$emit('close') 
         }
     }
 }

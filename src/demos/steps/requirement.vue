@@ -4,7 +4,6 @@
             <h4>Your requirements</h4>
             <p>Explain us who you are and the reason of your request</p>
         </div>
-
         <div class="col-md-6 pt-4">
             <div class="form-group">
                 <label for="job">I work as*</label>
@@ -13,9 +12,9 @@
                     label="countryName"
                     :options="jobs"
                     class="style-chooser"
-                    :on-change="changeState()"
-                    />
-                <div class="invalid-feedback" style="display:block">
+                    :class="hasError('job') ? 'is-invalid' : ''"
+                />
+                <div v-if="hasError('job')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.job.required">Please select on of the fields.</div>
                 </div>
             </div>
@@ -23,9 +22,9 @@
         <div class="col-md-6 pt-4">
             <div class="form-group">
                 <label for="companyName">Your Company Name</label>
-                <input type="text" class="form-control" :class="hasError('companyName') ? 'is-invalid' : ''" placeholder="Company Name" v-model="formData.companyName" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.companyName.required">Please provide a valid company name.</div>
+                <input type="text" class="form-control" :class="hasError('companyName') ? 'is-invalid' : ''" placeholder="Company Name" v-model="formData.companyName" :on-change="changeState()">
+                <div v-if="hasError('companyName')" class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.companyName.required">Please select on of the fields.</div>
                 </div>
             </div>
         </div>
@@ -36,9 +35,10 @@
                     v-model="formData.interested"
                     label="countryName"
                     :options="interests"
-                    @change="changeState()"
+                    :on-change="changeState()"
+                    :class="hasError('interested') ? 'is-invalid' : ''"
                     class="style-chooser"/>
-                <div class="invalid-feedback" style="display:block">
+                <div v-if="hasError('interested')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.interested.required">Please select on of the fields.</div>
                 </div>
             </div>
@@ -52,9 +52,11 @@
                     v-model="formData.benefit"
                     label="benefit"
                     :options="benefits"
-                    @change="changeState()"
-                    class="style-chooser"/>
-                <div class="invalid-feedback" style="display:block">
+                    :on-change="changeState()"
+                    :class="hasError('benefit') ? 'is-invalid' : ''"
+                    class="style-chooser"
+                />
+                <div v-if="hasError('benefit')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.benefit.required">Please select on of the fields.</div>
                 </div>
             </div>
@@ -64,29 +66,34 @@
 
 <script>
 import vSelect from 'vue-select'
-import 'vue-select/dist/vue-select.css';
-
-
-import Vuelidate from 'vuelidate'
-import { validationMixin } from 'vuelidate'
-import { required } from 'vuelidate/lib/validators';
-
-import * as types from '../../store/mutations/types'
+import 'vue-select/dist/vue-select.css'
+import { store } from '../../components/store.js'
 import { mapGetters, mapActions} from 'vuex'
+
+import ValidationHelper from '../../components/ValidationHelper.vue';
+import { required, email } from 'vuelidate/lib/validators';
 
 export default {
     name : "Requirement",
-    mixins: [validationMixin],
     components: {
         vSelect
     },
-    computed:{
-        ...mapGetters({
-            formData: 'getWizardForm',
-        }),
+    mixins: [ValidationHelper],
+    validations:{
+        formData : {
+            job:            {required}, 
+            companyName:    {required}, 
+            interested:     {required}, 
+            benefit:        {required}
+        },
     },
+    components: {
+        vSelect
+    },
+    mounted () {},
     data () {
         return {
+            formData : store.state.formData,
             jobs : [
                 'architect', 'barber', 'cook', 'developer'
             ],
@@ -98,26 +105,13 @@ export default {
             ],
         }
     },
-    validations:{
-        formData : {
-            job: {required}, 
-            companyName: {required}, 
-            interested: {required}, 
-            benefit: {required}
-        }
-    },
     methods : {
         ...mapActions(['setIsNextable']),
-        hasError(fieldName){
-            // return this.$v.fieldName.$error
-            return this.$v.formData[fieldName].$error;
-        },
         async changeState() {
-            if (this.$v.formData.$invalid) {
+            if (this.formData.job && this.formData.companyName && this.formData.interested && this.formData.benefit)
+                await this.setIsNextable({nextable:true})
+            else
                 await this.setIsNextable({nextable:false})
-                return;
-            }
-            await this.setIsNextable({nextable:true})
         }
     }
 }

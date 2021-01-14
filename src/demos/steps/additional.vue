@@ -7,7 +7,7 @@
         
         <div class="col-md-12">
             <div class="form-group">
-                <label for="message">Your Message*</label>
+                <label for="message">Your Message</label>
                 <textarea-autosize
                     ref="myTextarea"
                     class="form-control"
@@ -15,7 +15,6 @@
                     :min-height="100"
                     :max-height="100"
                     :class="hasError('message') ? 'is-invalid' : ''"
-                    @blur.native="onBlurTextarea"
                 />
                 
                 <div class="invalid-feedback" style="display:flex; flex-direction:row-reverse; justify-content:space-between">
@@ -27,7 +26,7 @@
         
         <div class="col-md-12">
             <div class="form-group">
-                <label for="message">Marketing Email Subscription</label>
+                <label for="receive">Marketing Email Subscription</label>
                 <div style="display:flex;">
                     <input
                         type="checkbox"
@@ -46,7 +45,7 @@
         
         <div class="col-md-6">
             <div class="form-group">
-                <label for="message">Security check*</label>
+                <label for="recaptcha">Security check*</label>
                 <vue-recaptcha sitekey="6Le2QiAaAAAAABwLJHk3M_xATE1AUr64biNE_H4A">
                     <button>Click me</button>
                 </vue-recaptcha>
@@ -59,47 +58,30 @@
 import VueRecaptcha from 'vue-recaptcha';
 
 import Vuelidate from 'vuelidate'
-import { validationMixin } from 'vuelidate'
+import ValidationHelper from '../../components/ValidationHelper.vue';
 import { required, maxLength } from 'vuelidate/lib/validators'
 
-import * as types from '../../store/mutations/types'
-import { mapGetters, mapActions} from 'vuex'
+import {store} from '../../components/store.js'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
     name : "CommunicationAddress",
-    mixins: [validationMixin],
+    mixins: [ValidationHelper],
     components: {
         VueRecaptcha 
     },
-    computed:{
-        ...mapGetters({
-            formData: 'getWizardForm',
-        }),
-    },
     data () {
         return {
+            formData : store.state.formData
         }
     },
     validations:{
         formData : {
             message: {maxLength}, 
-            reCaptcha: {required}, 
-
+            // reCaptcha: {required}, 
         }
     },
     methods : {
-        ...mapActions(['setIsNextable']),
-        hasError(fieldName){
-            // return this.$v.fieldName.$error
-            return this.$v.formData[fieldName].$invalid;
-        },
-        async changeState() {
-            if (this.$v.formData.$invalid) {
-                await this.setIsNextable({nextable:false})
-                return;
-            }
-            await this.setIsNextable({nextable:true})
-        }
     }
 }
 </script>

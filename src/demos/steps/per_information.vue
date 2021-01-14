@@ -9,7 +9,7 @@
             <div class="form-group">
                 <label for="firstName">First Name*</label>
                 <input type="text" class="form-control" :class="hasError('firstName') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.firstName" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
+                <div v-if="hasError('firstName')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.firstName.required">Please provide a valid name.</div>
                 </div>
             </div>
@@ -17,8 +17,8 @@
         <div class="col-md-6 pt-4">
             <div class="form-group">
                 <label for="lastName">Last Name*</label>
-                <input type="text" class="form-control" :class="hasError('lastName') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.lastName" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
+                <input type="text" class="form-control" :class="hasError('lastName') ? 'is-invalid' : ''" placeholder="Last Name" v-model="formData.lastName" @change="changeState()">
+                <div v-if="hasError('lastName')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.lastName.required">Please provide a valid name.</div>
                 </div>
             </div>
@@ -27,10 +27,10 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label for="emailAddress">Email*</label>
-                <input type="email" class="form-control" :class="hasError('emailAddress') ? 'is-invalid' : ''" placeholder="First Name" v-model="formData.emailAddress" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.emailAddress.required">Please provide a email.</div>
-                    <div class="error" v-if="!$v.formData.emailAddress.email">Please provide a valid email.</div>
+                <input type="email" class="form-control" :class="hasError('emailAddress') ? 'is-invalid' : ''" placeholder="Email Address" v-model="formData.emailAddress" @change="changeState()">
+                <div v-if="hasError('emailAddress')" class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.emailAddress.email">Please provide a email.</div>
+                    <div class="error" v-if="!$v.formData.emailAddress.required">Please provide a valid email.</div>
                 </div>
             </div>
         </div>
@@ -39,26 +39,26 @@
                 <label for="emailConfirmation">Email Confirmation*</label>
                 <input type="email" class="form-control" 
                     :class="hasError('emailConfirmation') ? 'is-invalid' : ''" 
-                    placeholder="First Name" 
-                    v-model="formData.emailConfirmation" 
-                    @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.emailConfirmation.sameAsEmailAddress">Please provide the equal email.</div>
+                    placeholder="Email Confirmation" 
+                    v-model="formData.emailConfirmation"
+                    @change="changeState()"
+                >
+                <div v-if="hasError('emailConfirmation')" class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.emailConfirmation.sameAsEmailAddress">Please select on of the fields.</div>
                 </div>
             </div>
         </div>
         
-        
         <div class="col-md-6">
             <div class="form-group">
                 <label for="phoneNumber">Phone Number*</label>
-                {{formData.phoneNumber}}
                 <VuePhoneNumberInput 
+                    @change="changeState()"
                     v-model="formData.phoneNumber"  
                     :class="hasError('phoneNumber') ? 'is-invalid' : ''" 
-                    :on-change="changeState()" />
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.phoneNumber.required">Please provide the valid phone number.</div>
+                    />
+                <div v-if="hasError('phoneNumber')" class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.phoneNumber.required">Please select on of the fields.</div>
                 </div>
             </div>
         </div>
@@ -70,17 +70,17 @@
                 <label for="preferLang">Prefered Language*</label>
                     <v-select 
                         v-model="formData.preferLang"
-                        :on-change="changeState()"
-                        label="countryName"
+                        label="preferLang"
                         :options="languages"
+                        :on-change="changeState()"
+                        :class="hasError('preferLang') ? 'is-invalid' : ''" 
                         class="style-chooser"/>
-                <div class="invalid-feedback" style="display:block">
+                <div v-if="hasError('preferLang')" class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.preferLang.required">Please select on of the fields.</div>
                 </div>
             </div>
             <div class="langInfo">
-                <v-icon name="alert-circle" 
-                    v-tooltip="{content : 'Prefered lanuage is defined'}"></v-icon>
+                <v-icon name="alert-circle" v-tooltip="{content : 'Prefered lanuage is defined'}"></v-icon>
             </div>
         </div>
     
@@ -96,30 +96,25 @@ import VTooltip from 'v-tooltip'
 import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 import VuePhoneNumberInput from 'vue-phone-number-input';
 
-import Vuelidate from 'vuelidate'
-import { validationMixin } from 'vuelidate'
+
+import ValidationHelper from '../../components/ValidationHelper.vue';
 import { required, email, sameAs } from 'vuelidate/lib/validators'
 
-
-import * as types from '../../store/mutations/types'
+import {store} from '../../components/store.js'
 import { mapGetters, mapActions} from 'vuex'
 
 export default {
     name : "PersonalInformation",
-    mixins: [validationMixin],
+    mixins: [ValidationHelper],
     components: {
         vSelect,
         VueTelInput,
         VTooltip,
         VuePhoneNumberInput
     },
-    computed:{
-        ...mapGetters({
-            formData: 'getWizardForm',
-        }),
-    },
     data () {
         return {
+            formData : store.state.formData,
             languages : ['English','Chinese','German', 'Spanish', 'Korean']
         }
     },
@@ -135,16 +130,16 @@ export default {
     },
     methods : {
         ...mapActions(['setIsNextable']),
-        hasError(fieldName){
-            // return this.$v.fieldName.$error
-            return this.$v.formData[fieldName].$invalid;
-        },
         async changeState() {
-            if (this.$v.formData.$invalid) {
+            if (this.formData.firstName 
+                && this.formData.lastName 
+                && this.formData.emailAddress 
+                && this.formData.emailConfirmation 
+                && this.formData.phoneNumber 
+                && this.formData.preferLang)
+                await this.setIsNextable({nextable:true})
+            else
                 await this.setIsNextable({nextable:false})
-                return;
-            }
-            await this.setIsNextable({nextable:true})
         }
     }
 }

@@ -16,7 +16,7 @@
                     class="form-control"
                     :class="hasError('country') ? 'is-invalid' : ''" 
                 />
-                <div class="invalid-feedback"  style="display:block">
+                <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.country.required">Please provide a valid name.</div>
                 </div>
             </div>
@@ -27,12 +27,12 @@
                 <region-select  
                     v-model = "formData.state"
                     :country="formData.country"
+                    :on-change="changeState()"
                     :region="formData.state"
                     class="form-control"
-                    :on-change="changeState()"
                     :class="hasError('state') ? 'is-invalid' : ''" 
                 />
-                <div class="invalid-feedback"  style="display:block">
+                <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.state.required">Please provide a valid name.</div>
                 </div>
             </div>
@@ -42,8 +42,8 @@
             <div class="form-group">
                 <label for="address1">Address 1*</label>
                 <input type="text" class="form-control" :class="hasError('address1') ? 'is-invalid' : ''" placeholder="Address 1" v-model="formData.address1" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.address1.required">Please provide a email.</div>
+                <div class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.address1.required">Please provide a address1.</div>
                 </div>
             </div>
         </div>
@@ -51,8 +51,8 @@
             <div class="form-group">
                 <label for="address2">Address 2*</label>
                 <input type="text" class="form-control" :class="hasError('address2') ? 'is-invalid' : ''" placeholder="Address 2" v-model="formData.address2" @change="changeState()">
-                <div class="invalid-feedback"  style="display:block">
-                    <div class="error" v-if="!$v.formData.address2.required">Please provide a email.</div>
+                <div class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.address2.required">Please provide a address2.</div>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@
             <div class="form-group">
                 <label for="city">City*</label>
                 <input type="text" class="form-control" :class="hasError('city') ? 'is-invalid' : ''" placeholder="City" v-model="formData.city" @change="changeState()">
-                <div class="invalid-feedback" style="display:block">
+                <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.city.required">Please select on of the fields.</div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                 <label for="zipCode">Zip Code*</label>
                 <input type="text" class="form-control" :class="hasError('zipCode') ? 'is-invalid' : ''" placeholder="Zip Code" v-model="formData.zipCode" @change="changeState()">
 
-                <div class="invalid-feedback" style="display:block">
+                <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.zipCode.required">Please provide valid input.</div>
                     <div class="error" v-if="!$v.formData.zipCode.numeric">Please provide valid input.</div>
                 </div>
@@ -88,28 +88,24 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import vueCountryRegionSelect from 'vue-country-region-select'
 
-import Vuelidate from 'vuelidate'
-import { validationMixin } from 'vuelidate'
+import ValidationHelper from '../../components/ValidationHelper.vue';
 import { required, numeric } from 'vuelidate/lib/validators'
 
-
-import * as types from '../../store/mutations/types'
+import {store} from '../../components/store.js'
 import { mapGetters, mapActions} from 'vuex'
 
 export default {
     name : "CommunicationAddress",
-    mixins: [validationMixin],
+    mixins: [ValidationHelper],
     components: {
         vSelect,
         vueCountryRegionSelect
     },
     computed:{
-        ...mapGetters({
-            formData: 'getWizardForm',
-        }),
     },
     data () {
         return {
+            formData : store.state.formData,
             languages : ['English','Chinese','German', 'Spanish', 'Korean']
         }
     },
@@ -125,16 +121,16 @@ export default {
     },
     methods : {
         ...mapActions(['setIsNextable']),
-        hasError(fieldName) {
-            // return this.$v.fieldName.$error
-            return this.$v.formData[fieldName].$invalid;
-        },
         async changeState() {
-            if (this.$v.formData.$invalid) {
+            if (this.formData.country 
+                && this.formData.state 
+                && this.formData.address1 
+                && this.formData.address2 
+                && this.formData.city 
+                && this.formData.zipCode)
+                await this.setIsNextable({nextable:true})
+            else
                 await this.setIsNextable({nextable:false})
-                return;
-            }
-            await this.setIsNextable({nextable:true})
         }
     }
 }

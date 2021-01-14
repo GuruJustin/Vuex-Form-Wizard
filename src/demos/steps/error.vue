@@ -10,7 +10,7 @@
             <h5>Sorry, we didn't successed to submit your request</h5>
             <p>we are currently having some issue, please try again.</p>
 
-            <a class="back" @click="back()">Go back to website</a>
+            <button class="back" @click="back()">Go back to website</button>
         </div>
     </div>
 </template>
@@ -20,7 +20,7 @@ export default {
     name : "ErrorComponent",
     methods : {
         back() {
-            console.log("backed");
+            this.$emit('destroy')
         }
     }
 }
@@ -51,5 +51,8 @@ export default {
         color : #3333ff;
         font-weight : bold;
     }
+}
+button {
+    background : white;
 }
 </style>

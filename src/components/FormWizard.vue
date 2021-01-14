@@ -1,17 +1,37 @@
 <template>
-    <div class="container  vue-step-wizard row">
+<div class="container  vue-step-wizard row">
         <div class="col-md-3 step-side">
           <div class = "form-title" >
             <h6 class = "title">Contact Form</h6>
             <div class="break"></div>
           </div>
 
-
-          <ul v-if="!mobile" class="step-pills">
-              <li @click="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`" v-if="tab.title">
+          <ul v-if="!mobile && tabs.length" class="step-pills">
+              <li @click="selectTab(0)" class="step-item" :class="{ 'active': tabs[0].isActive }" >
                   <a class="step-link" href="#">
-                    <span class="tabStatus">{{index+1}} </span> 
-                    <span class="tabLabel">{{tab.title}}</span>
+                    <span class="tabStatus">{{1}} </span> 
+                    <span class="tabLabel">{{tabs[0].title}}</span>
+                  </a>
+              </li>
+              <li class="step-item" >
+                  <a @click="selectTab(1)"  class="step-link" href="#" :class="{ 'subli-name-active': tabs[1].isActive | tabs[2].isActive }" >
+                    <span class="tabStatus">{{2}} </span> 
+                    <span class="tabLabel">{{tabs[1].title}}</span>
+                  </a>
+                  <div class="sub-li">
+                    <a @click="selectTab(1)" class="step-link" href="#" :class="{ 'subli-active': tabs[1].isActive }" >
+                      <span class="tabLabel">Personal Information</span>
+                    </a>
+
+                    <a @click="selectTab(2)" class="step-link" href="#" :class="{ 'subli-active': tabs[2].isActive }" >
+                      <span class="tabLabel">Communication Address</span>
+                    </a>
+                  </div>
+              </li>
+              <li @click="selectTab(3)" class="step-item" :class="{ 'active': tabs[3].isActive }" >
+                  <a class="step-link" href="#">
+                    <span class="tabStatus">{{3}} </span> 
+                    <span class="tabLabel">{{tabs[3].title}}</span>
                   </a>
               </li>
           </ul>
@@ -24,12 +44,12 @@
         <div class="col-md-9 step-body">
           <slot></slot>
           <div class="step-footer" >
-            <template v-if="successed == null">
+            <!-- <template v-if="successed == null"> -->
+            <template>
               <button v-if="currentTab!=0" @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Back</button>
               <button style="visibility:hidden">aa</button>
-              <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1 && currentTab != totalTabs-1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button>
-              <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Send</button>
-
+              <button @click="nextTab" :disabled="!nextable" v-if="currentTab < totalTabs - 1" class="step-button step-button-next" v-bind:class="{activeButton : nextable, disabledButton : !nextable}">Next</button>
+              <button @click="onSubmit" v-if="currentTab == totalTabs-1" class="step-button step-button-submit">Send</button>
               <div v-if="warningShow" class="warningSend">
                 Submission failed due to error, please try again. 
                 <div>
@@ -40,90 +60,167 @@
           </div>
         </div>
     </div>
+    <!-- <div class="vue-step-wizard">
+        <div class="step-header">
+        <div class="step-progress">
+            <div class="bar progressbar" :style="{ width: progress + '%' }">
+            </div>
+        </div>
+        <ul class="step-pills">
+            <li @click.prevent.stop="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
+                <a class="step-link" href="#">
+                        <span class="tabStatus">{{index+1}} </span> 
+                        <span class="tabLabel">{{tab.title}}</span>
+                </a>
+            </li>
+        </ul>
+        </div>
+        <div class="step-body">
+            <form>
+                <slot></slot>
+            </form>
+        </div>
+        <div class="step-footer">
+            <div class="btn-group" role="group">
+                <template v-if="!submitSuccess">
+                  <button @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Previous</button>
+                  <button @click="nextTab" v-if="currentTab < totalTabs - 1" class="step-button step-button-next">Next</button>
+                  <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Submit</button>
+                </template>
+                <template v-else>
+                  <button @click="reset" class="step-button step-button-reset">Reset</button>
+                </template>
+            </div>
+        </div>
+    </div> -->
 </template>
 <script>
 import { mapGetters, mapActions} from 'vuex'
+import { store } from "./store.js";
 
 export default {
     name: 'form-wizard',
     data(){
-      return{
-        tabs: [],
-        totalTabs : 0,
-        submitSuccess : false,
-        warningShow : false,
-        mobile : false,
-      }
+        return{
+            mobile : false,
+            tabs: [],
+            currentTab : 0,
+            totalTabs : 0,
+            storeState: store.state,
+            submitSuccess : false,
+            progress: 0,
+            isValidationSupport: false,
+            warningShow : false,
+        }
     },
-    computed:{
+    computed : {
       ...mapGetters({
         nextable : 'getIsNextable',
-        getWizardStep : 'getWizardStep',
         successed : 'getSuccessed',
         failedCount : 'getFailedCount',
-        currentTab : 'getCurrentTab'
-      }),
+      })
+    },
+    mounted() {
+        this.setSuccessed({successed:null})
+        this.setFailedCount({failedCount:0})
+        this.nextable({nextable:false})
     },
     mounted(){
       this.tabs = this.$children;
-      this.mobile = this.isMobile()
-      console.log(this.mobile)
+      this.mobile = this.isMobile();
       this.totalTabs = this.tabs.length;
-
-      this.setCurrentTab({currentTab:this.tabs.findIndex((tab) => tab.isActive === true)})
+      this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
 
       //Select first tab if none is marked selected
-      if(this.currentTab === -1 && this.totalTabs > 0){
+      if(this.currentTab === -1 && this.totalTabs > 0){  
           this.tabs[0].isActive = true;
-          this.setCurrentTab({currentTab: 0});
+          this.currentTab = 0;
       }
     },
 
     updated(){
+        /*
+          Using this lifehook - since store variable gets updated after component is mounted
+          isValidationSupport checks if user is looking to perform validation on each step
+        */
+        this.isValidationSupport = (Object.keys(this.storeState.v).length !== 0 && this.storeState.v.constructor === Object) ? true : false;
     },
 
     methods:{
-        ...mapActions([
-          'setIsNextable', 
-          'setWizardStep',
-          'setCurrentTab',
-          'setFailedCount',
-          'setSuccessed',
-          'sendAllData'
-        ]),
-        isMobile() {
-          if (screen.width <= 760) {
-            return true
-          } else {
-            return false
-          }
-        }, 
-        previousTab(){
-          this._switchTab(this.currentTab - 1)
-          this.$emit('onPreviousStep')
-        },
-        nextTab(){
-          this.setSuccessed({successed:null})
+      ...mapActions([
+        'setIsNextable',
+        'setFailedCount',
+        'setSuccessed',
+        'sendAllData',
+        'setWizardForm'
+      ]),
+      isMobile() {
+        if (screen.width <= 760) {
+          return true
+        } else {
+          return false
+        }
+      }, 
+      previousTab(){
+          this._switchTab(this.currentTab - 1);
 
-          this.setIsNextable({nextable: false})
-          if (this.getWizardStep < this.currentTab + 1)
-            this.setWizardStep({stepNumber : this.currentTab + 1})
-          this._switchTab(this.currentTab + 1);
-          this.$emit('onNextStep');
-        },
-        changeStatus(){
+          this.$emit('onPreviousStep'); 
+      },
+
+      nextTab(){
+        this.setSuccessed({successed:null})
+        this.setIsNextable({nextable: false})
+
+        if(this._validateCurrentTab() === false)
+            return;
+
+        this._switchTab(this.currentTab + 1);    
+        this.$emit('onNextStep');          
+      },
+
+      reset(){
+
+          this.tabs.forEach(tab => {
+            tab.isActive = false;
+            tab.isValidated = false;
+          });
+
+          this._switchTab(0);
+          this.submitSuccess = false;
+          this.storeState.v.$reset();
+
+          this.$emit('onReset');
+      },
+
+      changeStatus(){
           this.submitSuccess = true;
-        },
+      },
 
-        selectTab(index){
+      selectTab(index){
+        this.setSuccessed({successed:null})
+        if(index < this.currentTab){
+          this._switchTab(index);
+        }
 
-          this.setSuccessed({successed:null})
-          if (this.getWizardStep >= index)
-            this._switchTab(index);
-        },
+        if(this._validateCurrentTab() === false){
+            return;
+        }
 
-        async onSubmit(){
-          let response = 'failed'; 
+        if(this.tabs[index - 1].isValidated === false){
+            return;
+        }
+
+        this._switchTab(index);
+      },
+
+
+      async onSubmit(){
+          if(this._validateCurrentTab() === false)
+              return;
+          
+          let response = 'failed';
+          await this.setWizardForm({formData:this.storeState.formData});
+
           await this.sendAllData()
             .then(res => {
               response = res
@@ -133,32 +230,48 @@ export default {
               this.setSuccessed({successed:'failed'})
             }
             this.warningShow = true;
-            console.log(this.failedCount)
           } else {
               this.setSuccessed({successed:'successed'})
             this.$emit('onComplete');
           }
-        },
+      },
 
-        async _switchTab(index){
-            //Disable all tabs
+      _switchTab(index){
+          //Disable all tabs
           this.tabs.forEach(tab => {
             tab.isActive = false;
           });
 
-          await this.setCurrentTab({currentTab:index})
+          this.currentTab = index;
           this.tabs[index].isActive = true;
-        },
+
+          this.progress = ((this.currentTab + 1) / this.totalTabs * 100);
+      },
+
+      _validateCurrentTab(){
+          if(!this.isValidationSupport)  //Check if user wants to validate 
+              return true;
+
+          this.storeState.v.$touch();
+
+          if (this.storeState.v.$invalid) {
+              this.tabs[this.currentTab].isValidated = false;
+              return false;
+          }
+
+          this.tabs[this.currentTab].isValidated = true;
+
+          return true;
+      }
     },
     watch:{
        currentTab(){
-          this.setCurrentTab({currentTab : this.currentTab})
+          store.setCurrentTab(this.currentTab);
        }
     }
     
 }
 </script>
-
 <style lang = "scss">
 
   .warningSend {
@@ -174,6 +287,22 @@ export default {
       margin-left : 5px;
       width : 16px;
     }
+  }
+  .sub-li {
+    padding-left : 35px;
+    display:flex;
+    flex-direction : column;
+    a {
+      margin-top : 5px;
+    }
+    .subli-active {
+      font-weight :bold !important;
+      color : black !important;
+    }
+  }
+  .subli-name-active {
+      font-weight :bold !important;
+      color : black !important;
   }
   .vue-step-wizard{
     margin: 0px !important;
