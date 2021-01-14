@@ -4,17 +4,16 @@
             <h4>Communication Address</h4>
             <p>Enter your communication address</p>
         </div>
-
         <div class="col-md-6 pt-4">
             <div class="form-group">
                 <label for="country">Country*</label>
-                <country-select
-                    v-model = "formData.country"
-                    :country="formData.country"
-                    topCountry="US"
+                <v-select 
+                    v-model="country"
+                    label="country"
+                    :options="countries"
                     :on-change="changeState()"
-                    class="form-control"
-                    :class="hasError('country') ? 'is-invalid' : ''" 
+                    :class="hasError('country') ? 'is-invalid' : ''"
+                    class="style-chooser"
                 />
                 <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.country.required">Please provide a valid name.</div>
@@ -24,13 +23,13 @@
         <div class="col-md-6 pt-4">
             <div class="form-group" v-if="formData.country">
                 <label for="state">State/Province*</label>
-                <region-select  
-                    v-model = "formData.state"
-                    :country="formData.country"
+                <v-select 
+                    v-model="formData.state"
+                    label="state"
+                    :options="regions[abbrCountry[formData.country]]"
                     :on-change="changeState()"
-                    :region="formData.state"
-                    class="form-control"
-                    :class="hasError('state') ? 'is-invalid' : ''" 
+                    :class="hasError('state') ? 'is-invalid' : ''"
+                    class="style-chooser"
                 />
                 <div class="invalid-feedback">
                     <div class="error" v-if="!$v.formData.state.required">Please provide a valid name.</div>
@@ -101,12 +100,22 @@ export default {
         vSelect,
         vueCountryRegionSelect
     },
+    mounted () {
+        this.country = this.formData.country
+        console.log(this.formData.state)
+    },
     computed:{
+        ...mapGetters({
+            countries : 'getCountries',
+            abbrCountry : 'getabbrCountry',
+            regions : 'getRegions'
+        })
     },
     data () {
         return {
+            country : null,
             formData : store.state.formData,
-            languages : ['English','Chinese','German', 'Spanish', 'Korean']
+            languages : ['English','Chinese','German', 'Spanish', 'Korean'],
         }
     },
     validations:{
@@ -117,6 +126,12 @@ export default {
             address2: {required},
             city: {required},
             zipCode: {required, numeric},
+        }
+    },
+    watch : {
+        country : function(val){
+            this.formData.country = val
+            this.formData.state=null
         }
     },
     methods : {

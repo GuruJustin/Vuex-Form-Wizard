@@ -28,12 +28,33 @@ const store = new Vuex.Store({
     isNextable : false,
     currentTab: 0,
     failedCount : 0,
+    countries : [
+        'United state',
+        'United kingdom',
+        'German',
+        'Italy'
+    ],
+    abbrCountry: {
+        'United state' : 'US',
+        'United kingdom' : 'UK' ,
+        'German' : 'GM' ,
+        'Italy' : 'IT'
+    },
+    regions : {
+        US : ['New York', 'Pensilvenia', "California"],
+        UK : ['York', 'Wilton'] ,
+        GM : ['Berlin', 'Guitenburg'],
+        IT : ['Roma' , 'Maro']
+    }
   },
   getters : {
     getSuccessed: state => state.successed,
     getFailedCount: state => state.failedCount,
     getIsNextable : state => state.isNextable,
-    getWizardForm : state => state.wizardForm
+    getWizardForm : state => state.wizardForm,
+    getCountries : state => state.countries,
+    getabbrCountry : state => state.abbrCountry,
+    getRegions : state => state.regions,
   },
   mutations: {
     //set current Step
@@ -48,6 +69,15 @@ const store = new Vuex.Store({
     },
     setFailedCount (state, payload){
       state.failedCount = payload.failedCount
+    },
+    setCountries (state, payload){
+      state.getCountries = payload.getCountries
+    },
+    setabbrCountry (state, payload){
+      state.getabbrCountry = payload.getabbrCountry
+    },
+    setRegions (state, payload){
+      state.getRegions = payload.getRegions
     },
   },
   actions: {
@@ -67,8 +97,7 @@ const store = new Vuex.Store({
     sendAllData(context, payload) {
       //send to the backend api and get the repsonse
       let response = 201
-      console.log('---')
-      console.log(this.state.wizardForm);
+      // console.log(this.state.wizardForm);
       if(response != 200) {
         context.commit('setFailedCount', {failedCount : this.state.failedCount + 1})
         return 'failed'
@@ -76,7 +105,16 @@ const store = new Vuex.Store({
         context.commit('setSuccessed', {successed : 'success'})
         return 'success'
       }
-    }
+    },
+    setCountries (context, payload){
+      context.commit('setCountries', payload)
+    },
+    setabbrCountry (context, payload){
+      context.commit('setabbrCountry', payload)
+    },
+    setRegions (context, payload){
+      context.commit('setRegions', payload)
+    },
   }
 })
 export default store;
