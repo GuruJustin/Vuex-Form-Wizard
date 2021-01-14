@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="col-md-6 pt-4">
-            <div class="form-group">
+            <div class="form-group" v-if="formData.country">
                 <label for="state">State/Province*</label>
                 <region-select  
                     v-model = "formData.state"
