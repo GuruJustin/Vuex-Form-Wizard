@@ -54,45 +54,45 @@ const store = new Vuex.Store({
     getWizardForm : state => state.wizardForm,
     getCountries : state => state.countries,
     getabbrCountry : state => state.abbrCountry,
-    getRegions : state => state.regions,
+    getRegions : state => state.regions
   },
   mutations: {
     //set current Step
-    setWizardForm (state, payload) {
+    SET_WIZARD_FORM (state, payload) {
       state.wizardForm = Object.assign(payload.formData);
     },
-    setIsNextable (state, payload){
+    SET_IS_NEXTABLE (state, payload){
       state.isNextable = payload.nextable
     },
-    setSuccessed (state, payload) {
+    SET_SUCCESSED (state, payload) {
       state.successed = payload.successed
     },
-    setFailedCount (state, payload){
+    SET_FAILED_COUNT (state, payload){
       state.failedCount = payload.failedCount
     },
-    setCountries (state, payload){
-      state.getCountries = payload.getCountries
+    SET_COUNTRIES (state, payload){
+      state.countries = payload.countries
     },
-    setabbrCountry (state, payload){
-      state.getabbrCountry = payload.getabbrCountry
+    SET_ABBR_COUNTRIES (state, payload){
+      state.abbrCountry = payload.abbrCountry
     },
-    setRegions (state, payload){
-      state.getRegions = payload.getRegions
+    SET_REGIONS (state, payload){
+      state.regions = payload.regions
     },
   },
   actions: {
     //actions of setting current Step
     setIsNextable (context, payload) {
-      context.commit('setIsNextable', payload)
+      context.commit('SET_IS_NEXTABLE', payload)
     },
     setSuccessed(context, payload){
-      context.commit('setSuccessed', payload)
+      context.commit('SET_SUCCESSED', payload)
     },
     setFailedCount(context, payload){
-      context.commit('setFailedCount', payload)
+      context.commit('SET_FAILED_COUNT', payload)
     },
     setWizardForm (context, payload) {
-      context.commit('setWizardForm', payload)
+      context.commit('SET_WIZARD_FORM', payload)
     },
     sendAllData(context, payload) {
       //send to the backend api and get the repsonse
@@ -107,13 +107,18 @@ const store = new Vuex.Store({
       }
     },
     setCountries (context, payload){
-      context.commit('setCountries', payload)
+      context.commit('SET_COUNTRIES', payload)
     },
     setabbrCountry (context, payload){
-      context.commit('setabbrCountry', payload)
+      context.commit('SET_ABBR_COUNTRIES', payload)
     },
-    setRegions (context, payload){
-      context.commit('setRegions', payload)
+
+    // This is the function which should be replaced by API call
+    getRegionsofCountry (context, payload){
+      //you should add some api calling functions this action Method
+      return new Promise((resolve, reject) => {
+        resolve(this.state.regions[this.state.abbrCountry[payload.country]])
+      })
     },
   }
 })

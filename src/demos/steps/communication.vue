@@ -21,12 +21,12 @@
             </div>
         </div>
         <div class="col-md-6 pt-4">
-            <div class="form-group" v-if="formData.country">
+            <div class="form-group" v-if="country">
                 <label for="state">State/Province*</label>
                 <v-select 
                     v-model="formData.state"
                     label="state"
-                    :options="regions[abbrCountry[formData.country]]"
+                    :options="regions"
                     :on-change="changeState()"
                     :class="hasError('state') ? 'is-invalid' : ''"
                     class="style-chooser"
@@ -85,7 +85,6 @@
 <script>
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
-import vueCountryRegionSelect from 'vue-country-region-select'
 
 import ValidationHelper from '../../components/ValidationHelper.vue';
 import { required, numeric } from 'vuelidate/lib/validators'
@@ -98,21 +97,19 @@ export default {
     mixins: [ValidationHelper],
     components: {
         vSelect,
-        vueCountryRegionSelect
     },
     mounted () {
         this.country = this.formData.country
-        console.log(this.formData.state)
+        this.getRegionsByCountry()
     },
     computed:{
         ...mapGetters({
             countries : 'getCountries',
-            abbrCountry : 'getabbrCountry',
-            regions : 'getRegions'
         })
     },
     data () {
         return {
+            regions : [],
             country : null,
             formData : store.state.formData,
             languages : ['English','Chinese','German', 'Spanish', 'Korean'],
@@ -130,12 +127,21 @@ export default {
     },
     watch : {
         country : function(val){
+            if (this.formData.country != val)
+                this.formData.state=null
+            this.getRegionsByCountry()
             this.formData.country = val
-            this.formData.state=null
         }
     },
     methods : {
-        ...mapActions(['setIsNextable']),
+        ...mapActions(['setIsNextable', 'getRegionsofCountry']),
+
+        //Call getRegionsbyCountry of Action.
+        getRegionsByCountry() {
+            this.getRegionsofCountry({country:this.country}).then((res)=>{
+                this.regions = res
+            })
+        },
         async changeState() {
             if (this.formData.country 
                 && this.formData.state 

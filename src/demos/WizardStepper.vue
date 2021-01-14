@@ -62,6 +62,7 @@ export default {
     },
     data(){
         return {
+            formData : store.state.formData
         }
     },
     computed :{
@@ -78,11 +79,11 @@ export default {
             'setSuccessed'
         ]),
         destoryModal() {
+            this.reset()
             this.$emit('close') 
         },
         onComplete(){
             //alert("Submitting Form ! Rock On");
-            //this.setSuccessed({successed: 'success'})
         },
 
         reset(){
